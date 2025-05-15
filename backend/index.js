@@ -27,6 +27,7 @@ const logger = winston.createLogger({
 	],
 });
 const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken');
 
 const { Pool } = require("pg");
 require("dotenv").config();
@@ -118,9 +119,55 @@ app.post("/api/register", validateRegisterBody, async (req, res) => {
   }
 });
 
-app.post("/api/login", (req, res) => {
+app.post("/api/login", validateLoginBody, async (req, res) => {
   const logHeader = "apiLogin";
   logger.info(`${logHeader}`, req.body);
+
+	const { username, password } = req.body;
+
+	try {
+		const result = await pool.query(
+			`SELECT * FROM "user" WHERE username = '${username}'`
+		);
+
+		if (result.rows.length === 0) {
+			logger.info(`${logHeader}: invalid username or password`)
+			return res.status(401).json({
+				'status': 'failed',
+				'message': 'Invalid username or password'
+			})
+		}
+
+		const user = result.rows[0];
+		const isMatch = await bcrypt.compare(password, user.password);
+		if (!isMatch) {
+			logger.info(`${logHeader}: invalid username or password`)
+			return res.status(401).json({
+				'status': 'failed',
+				'message': 'Invalid username or password'
+			})
+		}
+
+		const token = jwt.sign({
+			id: user.id,
+			email: user.email,
+			username: user.username,
+		}, process.env.JWT_SECRET, { expiresIn: process.env.TOKEN_EXPIRES_IN })
+
+		return res.status(200).json({
+			'status': 'success',
+			'message': 'Login successful',
+			'data': {
+				'token': token
+			}
+		})
+	} catch (err) {
+		logger.error(`${logHeader}: ${err}`);
+		return res.status(500).json({
+			'status': 'failed',
+			'message': 'Server error'
+		})
+	}
 });
 
 app.post("/api/skill", validateRequiredNameBody, async (req, res) => {
@@ -267,6 +314,25 @@ function validateRequiredNameBody(req, res, next) {
   const requiredFields = ['name'];
 
   const missingFields = requiredFields.filter(
+    (field) =>
+      !req.body.hasOwnProperty(field) ||
+      req.body[field] === null ||
+      req.body[field] === ""
+  );
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      error: `Missing or empty required fields: ${missingFields.join(", ")}`,
+    });
+  }
+
+  next();
+}
+
+function validateLoginBody (req, res, next) {
+	const requiredFields = ['username', 'password'];
+
+	const missingFields = requiredFields.filter(
     (field) =>
       !req.body.hasOwnProperty(field) ||
       req.body[field] === null ||
