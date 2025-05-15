@@ -4,30 +4,28 @@ const port = 3000;
 
 const winston = require("winston");
 const { combine, timestamp, json, printf } = winston.format;
-const timestampFormat = 'YYYY-MM-DD HH:mm:ss';
+const timestampFormat = "YYYY-MM-DD HH:mm:ss";
 const logger = winston.createLogger({
-	format: combine(
-			timestamp({ format: timestampFormat }),
-			json(),
-			printf(({ timestamp, level, message, ...data }) => {
-					const response = {
-							level,
-							timestamp,
-							message
-					};
+  format: combine(
+    timestamp({ format: timestampFormat }),
+    json(),
+    printf(({ timestamp, level, message, ...data }) => {
+      const response = {
+        level,
+        timestamp,
+        message,
+      };
 
-					if (Object.keys(data).length > 0) {
-						response.data = data;
-					}
-					return JSON.stringify(response);
-			})
-	),
-	transports: [
-			new winston.transports.Console()
-	],
+      if (Object.keys(data).length > 0) {
+        response.data = data;
+      }
+      return JSON.stringify(response);
+    })
+  ),
+  transports: [new winston.transports.Console()],
 });
 const bcrypt = require("bcryptjs");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const { Pool } = require("pg");
 require("dotenv").config();
@@ -60,7 +58,9 @@ app.post("/api/register", validateRegisterBody, async (req, res) => {
     );
 
     if (userCheck.rows.length > 0) {
-			logger.debug(`${logHeader}: email or username or phone number already exist`)
+      logger.debug(
+        `${logHeader}: email or username or phone number already exist`
+      );
       return res.status(400).json({
         status: "failed",
         message: "Email or username or phone number already exist",
@@ -123,44 +123,94 @@ app.post("/api/login", validateLoginBody, async (req, res) => {
   const logHeader = "apiLogin";
   logger.info(`${logHeader}`, req.body);
 
-	const { username, password } = req.body;
+  const { username, password } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT * FROM "user" WHERE username = '${username}'`
+    );
+
+    if (result.rows.length === 0) {
+      logger.info(`${logHeader}: invalid username or password`);
+      return res.status(401).json({
+        status: "failed",
+        message: "Invalid username or password",
+      });
+    }
+
+    const user = result.rows[0];
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      logger.info(`${logHeader}: invalid username or password`);
+      return res.status(401).json({
+        status: "failed",
+        message: "Invalid username or password",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+				role_id: user.role_id
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.TOKEN_EXPIRES_IN }
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "Login successful",
+      data: {
+        token: token,
+      },
+    });
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+});
+
+app.post("/api/verify", validateRequiredIdBody, verifyToken, async (req, res) => {
+	const logHeader = 'apiVerify';
+	logger.info(`${logHeader}`, req.body);
+
+	if (req.user.role_id !== 1) { // user is not admin
+		logger.info(`${logHeader}: user is not admin`);
+		return res.status(401).json({
+			'status': 'failed',
+			'message': 'Unauthorized'
+		})
+	}
 
 	try {
+		logger.info(`${logHeader}: trying to verify seller`);
+		const { id } = req.body;
+
 		const result = await pool.query(
-			`SELECT * FROM "user" WHERE username = '${username}'`
+			`SELECT id FROM "user" WHERE id = ${id} and role_id = 2`
 		);
-
 		if (result.rows.length === 0) {
-			logger.info(`${logHeader}: invalid username or password`)
-			return res.status(401).json({
+			logger.info(`${logHeader}: seller is not found`);
+			return res.status(404).json({
 				'status': 'failed',
-				'message': 'Invalid username or password'
+				'message': 'Seller is not found'
 			})
 		}
 
-		const user = result.rows[0];
-		const isMatch = await bcrypt.compare(password, user.password);
-		if (!isMatch) {
-			logger.info(`${logHeader}: invalid username or password`)
-			return res.status(401).json({
-				'status': 'failed',
-				'message': 'Invalid username or password'
-			})
-		}
-
-		const token = jwt.sign({
-			id: user.id,
-			email: user.email,
-			username: user.username,
-		}, process.env.JWT_SECRET, { expiresIn: process.env.TOKEN_EXPIRES_IN })
+		const updateResult = await pool.query(
+			`UPDATE "user" SET verified = true WHERE id = ${id} and role_id = 2`
+		)
 
 		return res.status(200).json({
 			'status': 'success',
-			'message': 'Login successful',
-			'data': {
-				'token': token
-			}
+			'message': 'Seller verified'
 		})
+
 	} catch (err) {
 		logger.error(`${logHeader}: ${err}`);
 		return res.status(500).json({
@@ -168,111 +218,111 @@ app.post("/api/login", validateLoginBody, async (req, res) => {
 			'message': 'Server error'
 		})
 	}
-});
+})
 
 app.post("/api/skill", validateRequiredNameBody, async (req, res) => {
-	const logHeader = 'apiSkill';
-	logger.info(`${logHeader}`, req.body);
+  const logHeader = "apiSkill";
+  logger.info(`${logHeader}`, req.body);
 
-	try {
-		logger.info(`${logHeader}: trying to insert skill`);
-		const skillCheck = await pool.query(
-			`SELECT id FROM skill WHERE name = '${req.body.name}'`
-		);
-		if (skillCheck.rows.length > 0) {
-			logger.info(`${logHeader}: skill '${req.body.name}' already exist`);
-			return res.status(400).json({
-				'status': 'failed',
-				'message': `Skill ${req.body.name} already exist`
-			})
-		}
+  try {
+    logger.info(`${logHeader}: trying to insert skill`);
+    const skillCheck = await pool.query(
+      `SELECT id FROM skill WHERE name = '${req.body.name}'`
+    );
+    if (skillCheck.rows.length > 0) {
+      logger.info(`${logHeader}: skill '${req.body.name}' already exist`);
+      return res.status(400).json({
+        status: "failed",
+        message: `Skill ${req.body.name} already exist`,
+      });
+    }
 
-		const result = await pool.query(
-			`INSERT INTO skill (name) VALUES ('${req.body.name}')`
-		);
+    const result = await pool.query(
+      `INSERT INTO skill (name) VALUES ('${req.body.name}')`
+    );
 
-		logger.info(`${logHeader}: skill inserted`)
-		return res.status(201).json({
-			'status': 'success',
-			'message': 'Skill inserted'
-		})
-	} catch (err) {
-		logger.error(`${logHeader}: ${err}`);
-		return res.status(400).json({
-			'status': 'failed',
-			'message': 'Server error'
-		})
-	}
+    logger.info(`${logHeader}: skill inserted`);
+    return res.status(201).json({
+      status: "success",
+      message: "Skill inserted",
+    });
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(400).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
 });
 
 app.post("/api/animal", validateRequiredNameBody, async (req, res) => {
-	const logHeader = 'apiAnimal';
-	logger.info(`${logHeader}`, req.body);
+  const logHeader = "apiAnimal";
+  logger.info(`${logHeader}`, req.body);
 
-	try {
-		logger.info(`${logHeader}: trying to insert animal`);
-		const animalCheck = await pool.query(
-			`SELECT id FROM animal WHERE name = '${req.body.name}'`
-		);
-		if (animalCheck.rows.length > 0) {
-			logger.info(`${logHeader}: animal '${req.body.name}' already exist`);
-			return res.status(400).json({
-				'status': 'failed',
-				'message': `Animal ${req.body.name} already exist`
-			})
-		}
+  try {
+    logger.info(`${logHeader}: trying to insert animal`);
+    const animalCheck = await pool.query(
+      `SELECT id FROM animal WHERE name = '${req.body.name}'`
+    );
+    if (animalCheck.rows.length > 0) {
+      logger.info(`${logHeader}: animal '${req.body.name}' already exist`);
+      return res.status(400).json({
+        status: "failed",
+        message: `Animal ${req.body.name} already exist`,
+      });
+    }
 
-		const result = await pool.query(
-			`INSERT INTO animal (name) VALUES ('${req.body.name}')`
-		);
+    const result = await pool.query(
+      `INSERT INTO animal (name) VALUES ('${req.body.name}')`
+    );
 
-		logger.info(`${logHeader}: animal inserted`)
-		return res.status(201).json({
-			'status': 'success',
-			'message': 'Animal inserted'
-		})
-	} catch (err) {
-		logger.error(`${logHeader}: ${err}`);
-		return res.status(400).json({
-			'status': 'failed',
-			'message': 'Server error'
-		})
-	}
+    logger.info(`${logHeader}: animal inserted`);
+    return res.status(201).json({
+      status: "success",
+      message: "Animal inserted",
+    });
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(400).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
 });
 
 app.post("/api/role", validateRequiredNameBody, async (req, res) => {
-	const logHeader = 'apiRole';
-	logger.info(`${logHeader}`, req.body);
+  const logHeader = "apiRole";
+  logger.info(`${logHeader}`, req.body);
 
-	try {
-		logger.info(`${logHeader}: trying to insert role`);
-		const roleCheck = await pool.query(
-			`SELECT id FROM role WHERE name = '${req.body.name}'`
-		);
-		if (roleCheck.rows.length > 0) {
-			logger.info(`${logHeader}: role '${req.body.name}' already exist`);
-			return res.status(400).json({
-				'status': 'failed',
-				'message': `Role ${req.body.name} already exist`
-			})
-		}
+  try {
+    logger.info(`${logHeader}: trying to insert role`);
+    const roleCheck = await pool.query(
+      `SELECT id FROM role WHERE name = '${req.body.name}'`
+    );
+    if (roleCheck.rows.length > 0) {
+      logger.info(`${logHeader}: role '${req.body.name}' already exist`);
+      return res.status(400).json({
+        status: "failed",
+        message: `Role ${req.body.name} already exist`,
+      });
+    }
 
-		const result = await pool.query(
-			`INSERT INTO role (name) VALUES ('${req.body.name}')`
-		);
+    const result = await pool.query(
+      `INSERT INTO role (name) VALUES ('${req.body.name}')`
+    );
 
-		logger.info(`${logHeader}: role inserted`)
-		return res.status(201).json({
-			'status': 'success',
-			'message': 'Role inserted'
-		})
-	} catch (err) {
-		logger.error(`${logHeader}: ${err}`);
-		return res.status(400).json({
-			'status': 'failed',
-			'message': 'Server error'
-		})
-	}
+    logger.info(`${logHeader}: role inserted`);
+    return res.status(201).json({
+      status: "success",
+      message: "Role inserted",
+    });
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(400).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
 });
 
 app.listen(port, () => {
@@ -291,7 +341,7 @@ function validateRegisterBody(req, res, next) {
     "birth_date",
     "phone_number",
     "address",
-    "role_id"
+    "role_id",
   ];
 
   const missingFields = requiredFields.filter(
@@ -311,7 +361,7 @@ function validateRegisterBody(req, res, next) {
 }
 
 function validateRequiredNameBody(req, res, next) {
-  const requiredFields = ['name'];
+  const requiredFields = ["name"];
 
   const missingFields = requiredFields.filter(
     (field) =>
@@ -329,10 +379,10 @@ function validateRequiredNameBody(req, res, next) {
   next();
 }
 
-function validateLoginBody (req, res, next) {
-	const requiredFields = ['username', 'password'];
+function validateLoginBody(req, res, next) {
+  const requiredFields = ["username", "password"];
 
-	const missingFields = requiredFields.filter(
+  const missingFields = requiredFields.filter(
     (field) =>
       !req.body.hasOwnProperty(field) ||
       req.body[field] === null ||
@@ -346,4 +396,47 @@ function validateLoginBody (req, res, next) {
   }
 
   next();
+}
+
+function validateRequiredIdBody (req, res, next) {
+	const requiredFields = ["id"];
+
+  const missingFields = requiredFields.filter(
+    (field) =>
+      !req.body.hasOwnProperty(field) ||
+      req.body[field] === null ||
+      req.body[field] === ""
+  );
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      error: `Missing or empty required fields: ${missingFields.join(", ")}`,
+    });
+  }
+
+  next();
+}
+
+function verifyToken (req, res, next) {
+	const authHeader = req.headers['authorization'];
+
+	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		return res.status(401).json({
+			'status': 'failed',
+			'message': 'Invalid token'
+		})
+	}
+
+	const token = authHeader.split(' ')[1];
+
+	try {
+		const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+		req.user = decodedToken;
+		next();
+	} catch (err) {
+		return res.status(401).json({
+			'status': 'failed',
+			'message': 'Invalid or expired token'
+		})
+	}
 }
