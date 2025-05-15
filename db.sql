@@ -31,7 +31,7 @@ CREATE TABLE "user" (
     profile TEXT,
     cv TEXT,
     certificate TEXT,
-    role_id INT DEFAULT 2 REFERENCES role(id),
+    role_id INT REFERENCES role(id),
     status INT DEFAULT 0,
     description TEXT,
     verified BOOLEAN DEFAULT FALSE,
