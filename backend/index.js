@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 
+const cors = require("cors");
 const winston = require("winston");
 const { combine, timestamp, json, printf } = winston.format;
 const timestampFormat = "YYYY-MM-DD HH:mm:ss";
@@ -26,6 +27,10 @@ const logger = winston.createLogger({
 });
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const upload = multer({
+  dest: "./upload/",
+});
 
 const { Pool } = require("pg");
 require("dotenv").config();
@@ -41,8 +46,16 @@ pool.query("SELECT NOW()", (err, res) => {
     console.log("Database connected at:", res.rows[0].now);
   }
 });
+app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // jika pakai cookie/token
+  })
+);
 
 app.use(express.json());
+
 app.get("/", (req, res) => {
   res.send("Hello world!");
 });
@@ -75,10 +88,8 @@ app.post("/api/register", validateRegisterBody, async (req, res) => {
 					username,
 					email,
 					password,
-					skill_id,
 					animal_id,
-					birth_place,
-					birth_date,
+					birth,
 					phone_number,
 					address,
 					profile,
@@ -91,10 +102,8 @@ app.post("/api/register", validateRegisterBody, async (req, res) => {
 					'${req.body.username}',
 					'${req.body.email}',
 					'${hashedPassword}',
-					${req.body.skill_id},
 					${req.body.animal_id},
-					'${req.body.birth_place}',
-					'${req.body.birth_date}',
+					'${req.body.birth}',
 					'${req.body.phone_number}',
 					'${req.body.address}',
 					${req.body.profile ? req.body.profile : null},
@@ -123,28 +132,28 @@ app.post("/api/login", validateLoginBody, async (req, res) => {
   const logHeader = "apiLogin";
   logger.info(`${logHeader}`, req.body);
 
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
     const result = await pool.query(
-      `SELECT * FROM "user" WHERE username = '${username}'`
+      `SELECT * FROM "user" WHERE email = '${email}'`
     );
 
     if (result.rows.length === 0) {
-      logger.info(`${logHeader}: invalid username or password`);
+      logger.info(`${logHeader}: invalid email or password`);
       return res.status(401).json({
         status: "failed",
-        message: "Invalid username or password",
+        message: "Invalid email or password",
       });
     }
 
     const user = result.rows[0];
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      logger.info(`${logHeader}: invalid username or password`);
+      logger.info(`${logHeader}: invalid email or password`);
       return res.status(401).json({
         status: "failed",
-        message: "Invalid username or password",
+        message: "Invalid email or password",
       });
     }
 
@@ -153,7 +162,7 @@ app.post("/api/login", validateLoginBody, async (req, res) => {
         id: user.id,
         email: user.email,
         username: user.username,
-				role_id: user.role_id
+        role_id: user.role_id,
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.TOKEN_EXPIRES_IN }
@@ -175,50 +184,168 @@ app.post("/api/login", validateLoginBody, async (req, res) => {
   }
 });
 
-app.post("/api/verify", validateRequiredIdBody, verifyToken, async (req, res) => {
-	const logHeader = 'apiVerify';
-	logger.info(`${logHeader}`, req.body);
+app.post(
+  "/api/verify",
+  verifyToken,
+  validateAdmin,
+  validateRequiredIdBody,
+  async (req, res) => {
+    const logHeader = "apiVerify";
+    logger.info(`${logHeader}`, req.body);
 
-	if (req.user.role_id !== 1) { // user is not admin
-		logger.info(`${logHeader}: user is not admin`);
-		return res.status(401).json({
-			'status': 'failed',
-			'message': 'Unauthorized'
-		})
-	}
+    if (req.user.role_id !== 1) {
+      // user is not admin
+      logger.info(`${logHeader}: user is not admin`);
+      return res.status(401).json({
+        status: "failed",
+        message: "Unauthorized",
+      });
+    }
 
-	try {
-		logger.info(`${logHeader}: trying to verify seller`);
-		const { id } = req.body;
+    try {
+      logger.info(`${logHeader}: trying to verify seller`);
+      const { id } = req.body;
 
-		const result = await pool.query(
-			`SELECT id FROM "user" WHERE id = ${id} and role_id = 2`
-		);
-		if (result.rows.length === 0) {
-			logger.info(`${logHeader}: seller is not found`);
-			return res.status(404).json({
-				'status': 'failed',
-				'message': 'Seller is not found'
-			})
-		}
+      const result = await pool.query(
+        `SELECT id FROM "user" WHERE id = ${id} and role_id = 2`
+      );
+      if (result.rows.length === 0) {
+        logger.info(`${logHeader}: seller is not found`);
+        return res.status(404).json({
+          status: "failed",
+          message: "Seller is not found",
+        });
+      }
 
-		const updateResult = await pool.query(
-			`UPDATE "user" SET verified = true WHERE id = ${id} and role_id = 2`
-		)
+      const updateResult = await pool.query(
+        `UPDATE "user" SET verified = true WHERE id = ${id} and role_id = 2`
+      );
 
-		return res.status(200).json({
-			'status': 'success',
-			'message': 'Seller verified'
-		})
+      return res.status(200).json({
+        status: "success",
+        message: "Seller verified",
+      });
+    } catch (err) {
+      logger.error(`${logHeader}: ${err}`);
+      return res.status(500).json({
+        status: "failed",
+        message: "Server error",
+      });
+    }
+  }
+);
 
-	} catch (err) {
-		logger.error(`${logHeader}: ${err}`);
-		return res.status(500).json({
-			'status': 'failed',
-			'message': 'Server error'
-		})
-	}
-})
+app.post(
+  "/api/reject",
+  verifyToken,
+  validateAdmin,
+  validateRequiredIdBody,
+  async (req, res) => {
+    const logHeader = "apiReject";
+    logger.info(`${logHeader}`, req.body);
+
+    const { id } = req.body;
+
+    try {
+      logger.info(`${logHeader}: trying to reject`);
+      const result = await pool.query(`DELETE FROM "user" WHERE id = ${id}`);
+
+      return res.status(200).json({
+        status: "success",
+        message: "User rejected",
+      });
+    } catch (err) {
+      logger.error(`${logHeader}: ${err}`);
+      return res.status(500).json({
+        status: "failed",
+        message: "Server error",
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/changeStatus",
+  verifyRequiredChangeStatusBody,
+  verifyToken,
+  async (req, res) => {
+    const logHeader = "apiChangeStatus";
+    logger.info(`${logHeader}`, req.user.id);
+
+    const { status } = req.body;
+
+    try {
+      logger.info(`${logHeader}: trying to change status`);
+      const result = await pool.query(
+        `UPDATE "user" SET status = ${status} WHERE id = ${req.user.id} AND role_id = 2`
+      );
+
+      return res.status(200).json({
+        status: "success",
+        message: `Seller ${status ? "online" : "offline"}`,
+      });
+    } catch (err) {
+      logger.error(`${logHeader}: ${err}`);
+      return res.status(500).json({
+        status: "failed",
+        message: "Server error",
+      });
+    }
+  }
+);
+
+app.post(
+  "/api/order",
+  verifyToken,
+  validateBuyer,
+  validateBody(["service_id", 'start_dt', 'end_dt']),
+  async (req, res) => {
+    const logHeader = "apiOrder";
+    logger.info(`${logHeader}`, req.body);
+
+    const { service_id, start_dt, end_dt } = req.body;
+
+    try {
+      logger.info(`${logHeader}: trying to order`);
+      const result = await pool.query(
+        `INSERT INTO "order" (service_id, buyer_id, start_dt, end_dt) VALUES (${service_id}, ${req.user.id}, ${start_dt}, ${end_dt})`
+      );
+
+      return res.status(201).json({
+        status: "success",
+        message: "Order successful",
+      });
+    } catch (err) {
+      logger.error(`${logHeader}: ${err}`);
+      return res.status(500).json({
+        status: "failed",
+        message: "Server error",
+      });
+    }
+  }
+);
+
+app.get("/api/animals", async (req, res) => {
+  const logHeader = "apiAnimals";
+  logger.info(`${logHeader}`);
+
+  try {
+    logger.info(`${logHeader}: trying to get animals`);
+    const result = await pool.query(`SELECT * FROM animal`);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Get animals successful",
+      data: result.rows,
+    });
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+});
 
 app.post("/api/skill", validateRequiredNameBody, async (req, res) => {
   const logHeader = "apiSkill";
@@ -325,6 +452,154 @@ app.post("/api/role", validateRequiredNameBody, async (req, res) => {
   }
 });
 
+app.post('/api/service', verifyToken, validateSeller, validateBody(['skill_id', 'animal_id', 'price']), async (req, res) => {
+  const logHeader = 'apiService';
+  logger.info(`${logHeader}`, req.body);
+
+  const { skill_id, animal_id, price } = req.body;
+
+  try {
+    logger.info(`${logHeader}: trying to insert service`);
+    const result = await pool.query(
+      `INSERT INTO service (skill_id, animal_id, seller_id, price) VALUES (${skill_id}, ${animal_id}, ${req.user.id}, ${price})`
+    );
+
+    return res.status(201).json({
+      'status': 'success',
+      'message': 'Service inserted'
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      'status': 'failed',
+      'message': 'Server error'
+    })
+  }
+})
+
+app.get('/api/services', verifyToken, validateSeller, async (req, res) => {
+  const logHeader = 'apiServices';
+  logger.info(`${logHeader}`, req.user.id)
+
+  try {
+    logger.info(`${logHeader}: trying to get services`);
+    const result = await pool.query(
+      `SELECT * FROM service WHERE seller_id = ${req.user.id}`
+    );
+
+    return res.status(200).json({
+      'status': 'success',
+      'message': 'Get services successful',
+      'data': result.rows
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      'status': 'failed',
+      'message': 'Server error'
+    })
+  }
+})
+
+app.get('/api/orders', verifyToken, validateSeller, async (req, res) => {
+  const logHeader = 'apiOrders';
+  logger.info(`${logHeader}`, req.user.id);
+
+  try {
+    logger.info(`${logHeader}: trying to get orders`);
+    const result = await pool.query(
+      `SELECT * FROM "order" INNER JOIN service ON "order".service_id = service.id WHERE service.seller_id = ${req.user.id}`
+    );
+
+    const currentDt = Math.floor(Date.now() / 1000);
+    let orderIdsToUpdate = [];
+    result.rows.forEach(row => {
+      if (currentDt >= row['start_dt'] && currentDt < row['end_dt'] && row['status'] === 0) {
+        orderIdsToUpdate.push(row['id']);
+        row['status'] = 1;
+      }
+    })
+
+    const updateStatus = await pool.query(
+      `UPDATE "order" SET status = 1 WHERE id = ANY($1::int[])`, [orderIdsToUpdate]
+    );
+
+    let willTakePlaceCount = 0;
+    let takingPlaceCount = 0;
+    let finishedCount = 0;
+
+    result.rows.forEach(row => {
+      if (row['status'] === 0) willTakePlaceCount += 1;
+      else if (row['status'] === 1) takingPlaceCount += 1;
+      else if (row['status'] === 2) finishedCount += 1;
+    })
+
+    return res.status(200).json({
+      'status': 'success',
+      'message': 'Get orders successful',
+      'data': {
+        'akan_berlangsung': willTakePlaceCount,
+        'berlangsung': takingPlaceCount,
+        'selesai': finishedCount,
+        'orders': result.rows
+      }
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      'status': 'failed',
+      'message': 'Server error'
+    })
+  }
+})
+
+app.post('/api/updateStatus', verifyToken, validateSeller, validateBody(['order_id']), async (req, res) => {
+  const logHeader = 'apiUpdateStatus';
+  logger.info(`${logHeader}`, req.body);
+
+  const { order_id } = req.body;
+
+  try {
+    logger.info(`${logHeader}: trying to update order status`);
+    const result = await pool.query(
+      `UPDATE "order" SET status = 2 WHERE id = ${order_id} AND status = 1`
+    );
+
+    return res.status(201).json({
+      'status': 'success',
+      'message': 'Order status updated'
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(201).json({
+      'status': 'failed',
+      'message': 'Server error'
+    })
+  }
+})
+
+app.get("/api/users", verifyToken, validateAdmin, async (req, res) => {
+  const logHeader = "apiUsers";
+  logger.info(`${logHeader}`);
+
+  try {
+    logger.info(`${logHeader}: trying to get users data`);
+    const result = await pool.query(`SELECT * FROM "user" WHERE role_id != 1`);
+
+    return res.status(200).json({
+      status: "success",
+      message: "Get users successful",
+      data: result.rows,
+    });
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Running on port ${port}`);
 });
@@ -335,10 +610,8 @@ function validateRegisterBody(req, res, next) {
     "username",
     "email",
     "password",
-    "skill_id",
     "animal_id",
-    "birth_place",
-    "birth_date",
+    "birth",
     "phone_number",
     "address",
     "role_id",
@@ -380,7 +653,7 @@ function validateRequiredNameBody(req, res, next) {
 }
 
 function validateLoginBody(req, res, next) {
-  const requiredFields = ["username", "password"];
+  const requiredFields = ["email", "password"];
 
   const missingFields = requiredFields.filter(
     (field) =>
@@ -398,8 +671,8 @@ function validateLoginBody(req, res, next) {
   next();
 }
 
-function validateRequiredIdBody (req, res, next) {
-	const requiredFields = ["id"];
+function validateRequiredIdBody(req, res, next) {
+  const requiredFields = ["id"];
 
   const missingFields = requiredFields.filter(
     (field) =>
@@ -417,26 +690,126 @@ function validateRequiredIdBody (req, res, next) {
   next();
 }
 
-function verifyToken (req, res, next) {
-	const authHeader = req.headers['authorization'];
+function verifyToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
 
-	if (!authHeader || !authHeader.startsWith('Bearer ')) {
-		return res.status(401).json({
-			'status': 'failed',
-			'message': 'Invalid token'
-		})
-	}
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({
+      status: "failed",
+      message: "Invalid token",
+    });
+  }
 
-	const token = authHeader.split(' ')[1];
+  const token = authHeader.split(" ")[1];
 
-	try {
-		const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-		req.user = decodedToken;
-		next();
-	} catch (err) {
-		return res.status(401).json({
-			'status': 'failed',
-			'message': 'Invalid or expired token'
-		})
-	}
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decodedToken;
+    next();
+  } catch (err) {
+    return res.status(401).json({
+      status: "failed",
+      message: "Invalid or expired token",
+    });
+  }
+}
+
+function verifyRequiredChangeStatusBody(req, res, next) {
+  const requiredFields = ["status"];
+
+  const missingFields = requiredFields.filter(
+    (field) =>
+      !req.body.hasOwnProperty(field) ||
+      req.body[field] === null ||
+      req.body[field] === ""
+  );
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      error: `Missing or empty required fields: ${missingFields.join(", ")}`,
+    });
+  }
+
+  next();
+}
+
+function validateBody(bodyList = []) {
+  return function (req, res, next) {
+    const missingFields = bodyList.filter(
+      (field) =>
+        !Object.prototype.hasOwnProperty.call(req.body || {}, field) ||
+        req.body[field] === null ||
+        req.body[field] === ""
+    );
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        'status': 'failed',
+        'message': `Missing or empty required fields: ${missingFields.join(", ")}`,
+      });
+    }
+
+    next();
+  };
+}
+
+async function validateAdmin(req, res, next) {
+  const adminCheck = await pool.query(
+    `SELECT * FROM "user" WHERE id = ${req.user.id} and role_id = 1`
+  );
+  if (adminCheck.rows.length === 0) {
+    return res.status(401).json({
+      status: "failed",
+      message: "Unauthorized",
+    });
+  }
+
+  next();
+}
+
+async function validateSeller(req, res, next) {
+  const adminCheck = await pool.query(
+    `SELECT * FROM "user" WHERE id = ${req.user.id} and role_id = 2`
+  );
+  if (adminCheck.rows.length === 0) {
+    return res.status(401).json({
+      status: "failed",
+      message: "Unauthorized",
+    });
+  }
+
+  next();
+}
+
+async function validateBuyer(req, res, next) {
+  const adminCheck = await pool.query(
+    `SELECT * FROM "user" WHERE id = ${req.user.id} and role_id = 3`
+  );
+  if (adminCheck.rows.length === 0) {
+    return res.status(401).json({
+      status: "failed",
+      message: "Unauthorized",
+    });
+  }
+
+  next();
+}
+
+async function validateRequiredIdParams(req, res, next) {
+  const requiredFields = ["id"];
+
+  const missingFields = requiredFields.filter((p) => !req.params[p]);
+
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      status: "failed",
+      message: `Missing or empty required params: ${missingFields.join(", ")}`,
+    });
+  }
+
+  next();
+}
+
+async function validateRequiredOrderBody(req, res, next) {
+  const requiredFields = ["skill_id", "seller_id", "animal_id"];
 }
