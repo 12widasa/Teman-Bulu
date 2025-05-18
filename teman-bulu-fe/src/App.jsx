@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import './App.css'
 import Login from './Pages/Auth/Login'
-import Register from './Pages/Auth/Register'
 import Dashboard from './Pages/Admin/Dashboard';
 import LandingPage from './Pages/LandingPage/LandingPage';
+import RegisterBuyer from './Pages/Auth/RegisterBuyer';
+import RegisterSeller from './Pages/Auth/RegisterSeller';
 
 
 function App() {
@@ -14,8 +15,12 @@ function App() {
       element: <Login />,
     },
     {
-      path: "/register",
-      element: <Register />,
+      path: "/register-seller",
+      element: <RegisterSeller />,
+    },
+    {
+      path: "/register-buyer",
+      element: <RegisterBuyer />,
     },
     {
       path: "/admin",
