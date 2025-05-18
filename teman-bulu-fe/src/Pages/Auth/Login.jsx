@@ -15,10 +15,11 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = async (e) => {
-    setLoginAuth({
-      ...loginAuth,
-      [e.target.id]: e.target.value,
-    });
+    const { id, value } = e.target;
+    setLoginAuth((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
   }
 
   const handleLoginSubmit = async (e) => {
@@ -59,7 +60,7 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  className="w-full bg-black text-white py-2 px-4 rounded hover:bg-[#1d1f1f] transition duration-200 flex justify-center items-center gap-2"
+                  className="w-full bg-[#EF7800] text-white py-2 px-4 rounded hover:bg-[#1d1f1f] transition duration-200 flex justify-center items-center gap-2"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
