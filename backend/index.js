@@ -54,13 +54,17 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.get("/", (req, res) => {
-  res.send("Hello world!");
+  return res.status(200).json({
+    'status': 'success',
+    'message': 'APIs are ready'
+  })
 });
 
-app.post("/api/register", validateRegisterBody, async (req, res) => {
+app.post("/api/registerSeller", validateBody(['full_name', 'username', 'email', 'password', 'animal_id', 'birth', 'phone_number', 'address']), async (req, res) => {
   const logHeader = "apiRegister";
   logger.info(`${logHeader}`, req.body);
 
@@ -106,10 +110,10 @@ app.post("/api/register", validateRegisterBody, async (req, res) => {
 					'${req.body.birth}',
 					'${req.body.phone_number}',
 					'${req.body.address}',
-					${req.body.profile ? req.body.profile : null},
-					${req.body.cv ? req.body.cv : null},
-					${req.body.certificate ? req.body.certificate : null},
-					${req.body.role_id}
+					'${req.body.profile ? req.body.profile : null}',
+					'${req.body.cv ? req.body.cv : null}',
+					'${req.body.certificate ? req.body.certificate : null}',
+          2
 				)
 			`
     );
@@ -127,6 +131,116 @@ app.post("/api/register", validateRegisterBody, async (req, res) => {
     });
   }
 });
+
+app.post('/api/updateProfileSeller', verifyToken, validateSeller, validateBody(['full_name', 'email', 'password', 'animal_id', 'birth', 'phone_number', 'address', 'description', 'profile', 'cv', 'certificate']), async (req, res) => {
+  const logHeader = 'apiUpdateProfileSeller';
+  logger.info(`${logHeader}`, req.body);
+
+  const { full_name, email, password, animal_id, birth, phone_number, address, description, profile, cv, certificate } = req.body;
+
+  try {
+    logger.info(`${logHeader}: trying to update profile seller`);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `UPDATE "user" SET
+        full_name = '${full_name}',
+        email = '${email}',
+        password = '${hashedPassword}',
+        animal_id = '${animal_id}',
+        birth = '${birth}',
+        phone_number = '${phone_number}',
+        address = '${address}',
+        description = '${description}',
+        profile = '${profile}',
+        cv = '${cv}',
+        certificate = '${certificate}'
+        WHERE id = ${req.user.id}
+      `
+    );
+
+    return res.status(201).json({
+      'status': 'success',
+      'message': 'Profile updated'
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      'status': 'failed',
+      'message': 'Server error'
+    })
+  }
+})
+
+app.post('/api/registerBuyer', validateBody(['full_name', 'email', 'password']), async (req, res) => {
+  const logHeader = 'apiRegisterBuyer';
+  logger.info(`${logHeader}`, req.body);
+
+  try {
+    logger.info(`${logHeader}: trying to register buyer`);
+    const buyerCheck = await pool.query(
+      `SELECT id FROM "user" WHERE email = '${req.body.email}' AND role_id = 3`
+    );
+
+    if (buyerCheck.rows.length > 0) {
+      logger.info(`${logHeader}: email already exist`);
+      return res.status(400).json({
+        'status': 'failed',
+        'message': 'Email already exist'
+      })
+    };
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const result = await pool.query(
+      `INSERT INTO "user" (full_name, email, password, role_id) VALUES ('${req.body.full_name}', '${req.body.email}', '${hashedPassword}', 3)`
+    );
+
+    return res.status(201).json({
+      'status': 'success',
+      'message': 'Buyer registered'
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+})
+
+app.post('/api/updateProfileBuyer', verifyToken, validateBuyer, validateBody(['full_name', 'email', 'password', 'phone_number', 'address']), async (req, res) => {
+  const logHeader = 'apiUpdateProfileBuyer';
+  logger.info(`${logHeader}`, req.body);
+
+  const { full_name, email, password, phone_number, address } = req.body;
+
+  try {
+    logger.info(`${logHeader}: trying to update profile buyer`);
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const result = await pool.query(
+      `UPDATE "user" SET
+        full_name = '${full_name}',
+        email = '${email}',
+        password = '${hashedPassword}',
+        phone_number = '${phone_number}',
+        address = '${address}'
+        WHERE id = ${req.user.id}
+      `
+    );
+
+    return res.status(201).json({
+      'status': 'success',
+      'message': 'Profile updated'
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      'status': 'failed',
+      'message': 'Server error'
+    })
+  }
+})
 
 app.post("/api/login", validateLoginBody, async (req, res) => {
   const logHeader = "apiLogin";
@@ -578,13 +692,15 @@ app.post('/api/updateStatus', verifyToken, validateSeller, validateBody(['order_
   }
 })
 
-app.get("/api/users", verifyToken, validateAdmin, async (req, res) => {
+app.get("/api/users", verifyToken, validateAdmin, validateParams(['role_id']), async (req, res) => {
   const logHeader = "apiUsers";
-  logger.info(`${logHeader}`);
+  logger.info(`${logHeader}`, req.query);
+
+  const { role_id } = req.query;
 
   try {
     logger.info(`${logHeader}: trying to get users data`);
-    const result = await pool.query(`SELECT * FROM "user" WHERE role_id != 1`);
+    const result = await pool.query(`SELECT * FROM "user" WHERE role_id = ${role_id}`);
 
     return res.status(200).json({
       status: "success",
@@ -599,6 +715,22 @@ app.get("/api/users", verifyToken, validateAdmin, async (req, res) => {
     });
   }
 });
+
+app.get('/api/sellerServices', verifyToken, validateBuyer, async (req, res) => {
+  const logHeader = 'apiSellerServices';
+  logger.info(`${logHeader}`);
+
+  try {
+    logger.info(`${logHeader}: trying to get seller services`);
+
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      'status': 'failed',
+      'message': 'Server error'
+    })
+  }
+})
 
 app.listen(port, () => {
   console.log(`Running on port ${port}`);
@@ -753,6 +885,26 @@ function validateBody(bodyList = []) {
   };
 }
 
+function validateParams(bodyList = []) {
+  return function (req, res, next) {
+    const missingFields = bodyList.filter(
+      (field) =>
+        !Object.prototype.hasOwnProperty.call(req.query || {}, field) ||
+        req.query[field] === null ||
+        req.query[field] === ""
+    );
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        'status': 'failed',
+        'message': `Missing or empty required parameters: ${missingFields.join(", ")}`,
+      });
+    }
+
+    next();
+  };
+}
+
 async function validateAdmin(req, res, next) {
   const adminCheck = await pool.query(
     `SELECT * FROM "user" WHERE id = ${req.user.id} and role_id = 1`
@@ -795,20 +947,7 @@ async function validateBuyer(req, res, next) {
   next();
 }
 
-async function validateRequiredIdParams(req, res, next) {
-  const requiredFields = ["id"];
 
-  const missingFields = requiredFields.filter((p) => !req.params[p]);
-
-  if (missingFields.length > 0) {
-    return res.status(400).json({
-      status: "failed",
-      message: `Missing or empty required params: ${missingFields.join(", ")}`,
-    });
-  }
-
-  next();
-}
 
 async function validateRequiredOrderBody(req, res, next) {
   const requiredFields = ["skill_id", "seller_id", "animal_id"];

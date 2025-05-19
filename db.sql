@@ -19,7 +19,7 @@ CREATE TABLE skill (
 CREATE TABLE "user" (
     id SERIAL PRIMARY KEY,
     full_name TEXT NOT NULL,
-    username VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(255) UNIQUE,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     animal_id INT REFERENCES animal(id),
@@ -29,7 +29,7 @@ CREATE TABLE "user" (
     profile TEXT,
     cv TEXT,
     certificate TEXT,
-    role_id INT REFERENCES role(id),
+    role_id INT NOT NULL REFERENCES role(id),
     status BOOLEAN DEFAULT FALSE,
     description TEXT,
     verified BOOLEAN DEFAULT FALSE,
@@ -45,7 +45,6 @@ CREATE TABLE "order" (
     start_dt INT NOT NULL,
     end_dt INT NOT NULL
 );
-
 
 CREATE TABLE service (
     id SERIAL PRIMARY KEY,
