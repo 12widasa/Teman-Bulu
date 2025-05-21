@@ -28,7 +28,8 @@ apiInstance.interceptors.response.use(
 
 const ENDPOINTS = {
   LOGIN: "/login",
-  REGISTER: "/register",
+  REGISTER_BUYER: "/registerBuyer",
+  REGISTER_SELLER: "/registerSeller",
   ANIMALS: "/animals"
 }
 
@@ -42,9 +43,17 @@ export const AUTH_SERVICE = {
       handleApiError(error, "Error Login");
     }
   },
-  async registerUser(payload) {
+  async registerBuyer(payload) {
     try {
-      const response = await apiInstance.post(ENDPOINTS.REGISTER, payload);
+      const response = await apiInstance.post(ENDPOINTS.REGISTER_BUYER, payload);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, "Error Register");
+    }
+  },
+  async registerSeller(payload) {
+    try {
+      const response = await apiInstance.post(ENDPOINTS.REGISTER_SELLER, payload);
       return response.data;
     } catch (error) {
       handleApiError(error, "Error Register");
