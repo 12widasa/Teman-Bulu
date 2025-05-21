@@ -90,7 +90,7 @@ export default function RegisterSeller() {
     try {
       setIsSubmitting(true);
       console.log(registerSellerAuth);
-      await AUTH_SERVICE.registerUser({ ...registerSellerAuth, animal_id: parseInt(registerSellerAuth.animal_id), role_id: 1 });
+      await AUTH_SERVICE.registerSeller({ ...registerSellerAuth, animal_id: parseInt(registerSellerAuth.animal_id) });
       setIsSubmitting(false);
       setShowModal(true);
     } catch (error) {
