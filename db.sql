@@ -18,7 +18,7 @@ CREATE TABLE role (
 CREATE TABLE skill (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    description TEXT,
+    description JSON,
     status INT DEFAULT 0 NOT NULL -- 0: di rumah, 1: penitipan
 );
 
@@ -31,9 +31,9 @@ CREATE TABLE `user` (
     birth VARCHAR(255),
     phone_number VARCHAR(20),
     address TEXT,
-    profile TEXT,
-    cv TEXT,
-    certificate TEXT,
+    profile LONGTEXT,
+    cv LONGTEXT,
+    certificate LONGTEXT,
     role_id INT NOT NULL REFERENCES role(id),
     status BOOLEAN DEFAULT FALSE,
     description TEXT,
@@ -68,7 +68,8 @@ CREATE TABLE `order` (
     rating FLOAT,
     start_dt INT NOT NULL,
     end_dt INT,
-    address TEXT
+    address TEXT,
+    total_price INT NOT NULL
 );
 
 -- Insert roles
@@ -77,21 +78,14 @@ INSERT INTO role (name) VALUES
 
 -- Insert skills
 INSERT INTO skill (name, description, status) VALUES
-('Grooming', 'Grooming services for pets', 0),
-('Pet Sitting', 'Take care of pets while you are away', 1),
-('Walking', 'Dog walking service', 0),
-('Training', 'Basic obedience training', 1),
-('Boarding', 'Overnight stay service', 1),
-('Bathing', 'Pet bathing service', 0),
-('Vaccination Assistance', 'Help with pet vaccines', 0),
-('Feeding', 'Scheduled feeding', 0),
-('Day Care', 'Daytime pet care', 1),
-('Health Check', 'Basic pet health inspection', 0);
+('Paket A - Grooming di Rumah', '["Mandi","Potong kuku","Pembersihan telinga","Pembersihan kandang","Dog walking (khusus anjing) selama 30 menit"]', 0),
+('Paket B - Penitipan', '["Kandang nyaman","Makanan & minuman","Pembersihan kandang","Waktu bermain & aktivitas ringan"]', 1),
+('Paket C - Grooming di Tempat', '["Mandi","Potong kuku","Pembersihan telinga"]', 1),
+('Paket D - Grooming & Penitipan', '["Kombinasi lengkap layanan Paket B + Paket C","Cocok untuk Anda yang ingin menitipkan sekaligus merawat hewan kesayangan dengan layanan terbaik"]', 1);
 
 -- Insert animals
 INSERT INTO animal (name) VALUES
-('Dog'), ('Cat'), ('Rabbit'), ('Hamster'), ('Bird'),
-('Fish'), ('Guinea Pig'), ('Turtle'), ('Ferret'), ('Lizard');
+('Kucing'), ('Anjing'), ('Kelinci'), ('Hamster');
 
 -- Insert users
 INSERT INTO `user` (
@@ -114,18 +108,6 @@ INSERT INTO user_animals (user_id, animal_id) VALUES
 (1, 1), (1, 2), (3, 1), (3, 3), (5, 10),
 (7, 1), (7, 4), (9, 1), (9, 5), (9, 6);
 
--- Insert services
-INSERT INTO service (skill_id, animal_id, seller_id, price) VALUES
-(1, 1, 1, 50000),
-(2, 2, 1, 75000),
-(3, 3, 3, 30000),
-(4, 1, 3, 100000),
-(5, 10, 5, 150000),
-(6, 1, 7, 45000),
-(7, 5, 9, 80000),
-(8, 6, 9, 40000),
-(9, 1, 5, 90000),
-(10, 4, 7, 70000);
 
 -- Insert orders
 INSERT INTO `order` (service_id, buyer_id, status, rating, start_dt, end_dt) VALUES
@@ -138,4 +120,14 @@ INSERT INTO `order` (service_id, buyer_id, status, rating, start_dt, end_dt) VAL
 (7, 4, 2, 5.0, 1746604800, 1746612000),
 (8, 6, 2, 4.3, 1746691200, 1746698400),
 (9, 8, 2, 3.9, 1746777600, 1746784800),
-(10, 10, 2, 4.6, 1746864000, 1746871200);
+(10, 10, 2, 4.6, 1746864000, 1746871200),
+(1, 2, 2, 3.6, 1746086400, 1746093600),
+(2, 4, 2, 3.1, 1746172800, 1746180000),
+(3, 6, 2, 4.5, 1746259200, 1746266400),
+(4, 8, 2, 4.2, 1746345600, 1746352800),
+(5, 10, 2, 4.1, 1746432000, 1746439200),
+(6, 2, 2, 4.9, 1746518400, 1746525600),
+(7, 4, 2, 4.0, 1746604800, 1746612000),
+(8, 6, 2, 3.3, 1746691200, 1746698400),
+(9, 8, 2, 2.9, 1746777600, 1746784800),
+(10, 10, 2, 3.6, 1746864000, 1746871200);

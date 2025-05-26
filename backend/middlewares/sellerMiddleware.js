@@ -1,0 +1,29 @@
+const mysql = require("mysql2/promise");
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
+
+async function validateSeller(req, res, next) {
+  const [sellerCheck] = await pool.query(
+    "SELECT * FROM user WHERE id = ? and role_id = 2",
+    [req.user.id]
+  );
+  if (sellerCheck.length === 0) {
+    return res.status(401).json({
+      status: "failed",
+      message: "Unauthorized",
+    });
+  }
+
+  next();
+}
+
+module.exports = {
+  validateSeller,
+};
