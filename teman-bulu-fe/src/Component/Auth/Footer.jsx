@@ -5,12 +5,12 @@ export default function Footer() {
   return (
     <div>
       {/* <!-- Footer --> */}
-      <footer className="text-white bg-[#EF7800] py-8 border ">
+      <footer className="text-white h-54 bg-[#EF7800] py-6 border lg:px-4 md:px-2 ">
         <div className="container mx-auto px-4">
-          <div className="flex flex-wrap">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             {/* <!-- Site Name --> */}
-            <div className="w-full md:w-1/4 flex flex-col mb-6 md:mb-0 justify-between">
-              <h3 className="text-lg font-medium pb-4">Site name</h3>
+            <div className="flex flex-col justify-between">
+              <h3 className="text-2xl font-medium pb-4">Teman Bulu</h3>
               {/* <!-- Social Icons --> */}
               <div className="flex flex-row space-x-2 pb-4">
                 <a href="#" className="text-white">
@@ -42,30 +42,21 @@ export default function Footer() {
             </div>
 
             {/* <!-- Footer Links --> */}
-            <div className="w-full md:w-1/4 mb-6 md:mb-0">
-              <h3 className="text-lg font-medium mb-4">Topic</h3>
+            <div>
+              <h3 className="text-lg font-medium mb-2">Kontak Kami</h3>
               <ul>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
+                <li className="mb-2"><a href="#" className="text-sm hover:text-gray-300">+6285642032487</a></li>
+                <li className="mb-2"><a href="#" className="text-sm hover:text-gray-300">temanbulu@gmail.com</a></li>
+                <li className="mb-2"><a href="#" className="text-sm hover:text-gray-300">Jl. Imam Bonjol No.209, Pendrikan Kidul, Kec. Semarang Tengah, Kota Semarang, Jawa Tengah 50131</a></li>
               </ul>
             </div>
 
-            <div className="w-full md:w-1/4 mb-6 md:mb-0">
-              <h3 className="text-lg font-medium mb-4">Topic</h3>
+            <div>
+              <h3 className="text-lg font-medium mb-2">Kontak Mitra</h3>
               <ul>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
-              </ul>
-            </div>
-
-            <div className="w-full md:w-1/4">
-              <h3 className="text-lg font-medium mb-4">Topic</h3>
-              <ul>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
-                <li className="mb-4"><a href="#" className="hover:text-gray-300">Page</a></li>
+                <li className="mb-2"><a href="#" className="hover:text-gray-300 text-sm">+6285642032487</a></li>
+                <li className="mb-2"><a href="#" className="hover:text-gray-300 text-sm">animalcenter@gmail.com</a></li>
+                <li className="mb-2"><a href="#" className="hover:text-gray-300 text-sm">Jl. Imam Bonjol No.185, Sekayu, Kec. Semarang Tengah, Kota Semarang, Jawa Tengah 50131</a></li>
               </ul>
             </div>
           </div>
