@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Facebook, Instagram, Linkedin, Loader2, Twitter, Youtube } from 'lucide-react';
 import Header from './../../Component/Auth/Header';
 import Footer from './../../Component/Auth/Footer';
-import Image from './../../assets/auth-image.jpg';
+import DOG5 from './../../assets/dog5.jpg';
 import ModalOpen from '../../Component/Auth/ModalOpen';
 import { AUTH_SERVICE } from '../../Services/Auth';
 
@@ -46,7 +46,7 @@ export default function Login() {
           {/* <!-- Login Form --> */}
           <div className="w-full md:w-1/2">
             <div className="pr-8">
-              <h2 className="text-2xl font-bold mb-4">Daftar</h2>
+              <h2 className="text-2xl font-bold mb-4">Masuk</h2>
               <form onSubmit={handleLoginSubmit}>
                 <div className="mb-4">
                   <label className="block text-gray-700 mb-2">Email</label>
@@ -83,8 +83,8 @@ export default function Login() {
 
           {/* <!-- Image Placeholder --> */}
           <div className="w-full md:w-1/2 mt-8 md:mt-0">
-            <div className="h-72 md:h-full rounded justify-center relative">
-              <img src={Image} alt="" />
+            <div className="h-32 overflow-hidden md:h-full rounded justify-center">
+              <img src={DOG5} alt="" />
             </div>
           </div>
         </div>
