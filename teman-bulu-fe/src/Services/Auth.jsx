@@ -1,12 +1,14 @@
 import { dateFormatWithTime } from '../Utils/dateFormat'
 import axios from 'axios'
 
+const token = localStorage.getItem("token");
+
 const apiInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    // Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   },
   timeout: 10000,
 });
@@ -31,7 +33,9 @@ const ENDPOINTS = {
   LOGIN: "/login",
   REGISTER_BUYER: "/registerBuyer",
   REGISTER_SELLER: "/registerSeller",
-  ANIMALS: "/animals"
+  ANIMALS: "/animals",
+  UPDATE_PROFILE_BUYER: "/updateProfileBuyer",
+  UPDATE_PROFILE_SELLER: "/updateProfileSeller",
 }
 
 export const AUTH_SERVICE = {
@@ -68,4 +72,12 @@ export const AUTH_SERVICE = {
       handleApiError(error, "Error List Animal");
     }
   },
+  updateProfileBuyer: async (payload) => {
+    try {
+      const response = await apiInstance.post(ENDPOINTS.UPDATE_PROFILE_BUYER, payload);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, "Error Update Profile Buyer");
+    }
+  }
 }

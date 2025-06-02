@@ -32,6 +32,9 @@ apiInstance.interceptors.response.use(
 const ENDPOINTS = {
   SELLER_ORDERS: "/sellerOrders",
   UPDATE_STATUS: "/updateStatus",
+  CHANGE_STATUS: "/changeStatus",
+  GET_PROFILE: "/getProfile",
+  UPDATE_PROFILE_SELLER: "/updateProfileSeller",
 }
 
 export const SELLER_SERVICE = {
@@ -49,6 +52,30 @@ export const SELLER_SERVICE = {
       return response.data
     } catch (error) {
       handleApiError(error, "Error to update status");
+    }
+  },
+  changeStatus: async (payload) => {
+    try {
+      const response = await apiInstance.put(ENDPOINTS.CHANGE_STATUS, payload)
+      return response.data
+    } catch (error) {
+      handleApiError(error, "Error to update status");
+    }
+  },
+  getProfile: async () => {
+    try {
+      const response = await apiInstance.get(ENDPOINTS.GET_PROFILE)
+      return response.data
+    } catch (error) {
+      handleApiError(error, "Error to get profile");
+    }
+  },
+  updateProfileSeller: async (payload) => {
+    try {
+      const response = await apiInstance.put(ENDPOINTS.UPDATE_PROFILE_SELLER, payload)
+      return response.data
+    } catch (error) {
+      handleApiError(error, "Error to get profile");
     }
   }
 }

@@ -35,6 +35,7 @@ const ENDPOINTS = {
   ORDER: "/order",
   BUYER_ORDERS: "/buyerOrders",
   PAY_ORDER: "/payOrder",
+  RATE_ORDER: "/rateOrder",
 }
 
 export const BUYER_SERVICE = {
@@ -81,6 +82,14 @@ export const BUYER_SERVICE = {
   payOrder: async (payload) => {
     try {
       const response = await apiInstance.put(ENDPOINTS.PAY_ORDER, payload);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, "Error get Order List")
+    }
+  },
+  rateOrder: async (payload) => {
+    try {
+      const response = await apiInstance.put(ENDPOINTS.RATE_ORDER, payload);
       return response.data;
     } catch (error) {
       handleApiError(error, "Error get Order List")
