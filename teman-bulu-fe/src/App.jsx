@@ -3,6 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import './App.css'
 import Login from './Pages/Auth/Login'
 import LandingPage from './Pages/LandingPage/LandingPage';
+import About from './Pages/LandingPage/About.jsx';
 import RegisterBuyer from './Pages/Auth/RegisterBuyer';
 import RegisterSeller from './Pages/Auth/RegisterSeller';
 import DataBuyer from './Pages/Admin/DataBuyer';
@@ -14,6 +15,8 @@ import DetailPesanan from './Pages/Pembeli/DetailPesanan/DetailPesanan';
 import Pembayaran from './Pages/Pembeli/Pembayaran/Pembayaran';
 import DaftarTransaksi from './Pages/Pembeli/DaftarTransaksi/DaftarTransaksi';
 import DaftarPesanan from './Pages/Penjual/DaftarPesanan/DaftarPesanan';
+import ProfileSeller from './Pages/Penjual/Profile/Profile.jsx';
+import ProfileBuyer from './Pages/Pembeli/Profile/Profile.jsx';
 
 function App() {
   const router = createBrowserRouter([
@@ -28,6 +31,10 @@ function App() {
     {
       path: "/landingpage",
       element: <LandingPage />,
+    },
+    {
+      path: "/about",
+      element: <About />,
     },
     {
       path: "/login",
@@ -72,6 +79,14 @@ function App() {
     {
       path: "/daftar-pesanan",
       element: <DaftarPesanan />,
+    },
+    {
+      path: "/profile-seller",
+      element: <ProfileSeller />,
+    },
+    {
+      path: "/profile-buyer",
+      element: <ProfileBuyer />,
     }
   ]);
   return (
