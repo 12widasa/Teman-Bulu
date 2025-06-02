@@ -28,12 +28,15 @@ export default function RegisterBuyer() {
     try {
       setIsSubmitting(true);
       const response = await AUTH_SERVICE.registerBuyer({ full_name: registerBuyerAuth.full_name, email: registerBuyerAuth.email, password: registerBuyerAuth.password })
-      // localStorage.setItem('token', response.data.token)
       setIsSubmitting(false);
       setShowModal(true);
     } catch (error) {
       setIsSubmitting(false);
       console.log(error);
+      const errorMessage =
+        error?.response?.data?.message || 'Jangan Salah Mbok an.';
+      alert(errorMessage);
+      // console.error('Error detail:', error);
     }
   };
 

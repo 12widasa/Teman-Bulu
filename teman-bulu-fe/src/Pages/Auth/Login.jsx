@@ -5,14 +5,17 @@ import Footer from './../../Component/Auth/Footer';
 import DOG5 from './../../assets/dog5.jpg';
 import ModalOpen from '../../Component/Auth/ModalOpen';
 import { AUTH_SERVICE } from '../../Services/Auth';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
-  const [showModal, setShowModal] = useState(false);
   const [loginAuth, setLoginAuth] = useState({
     email: '',
     password: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = async (e) => {
     const { id, value } = e.target;
@@ -21,25 +24,106 @@ export default function Login() {
       [id]: value,
     }));
   }
+  const [isOnline, setIsOnline] = useState(true);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const response = await AUTH_SERVICE.loginUser({ email: loginAuth.email, password: loginAuth.password })
-      localStorage.setItem('token', response.data.token)
-      setIsSubmitting(false);
-      setShowModal(true);
+      const response = await AUTH_SERVICE.loginUser({
+        email: loginAuth.email,
+        password: loginAuth.password
+      });
+
+      localStorage.setItem('token', response.data.token);
+      setShowSuccessModal(true);
+      setShowErrorModal(false);
+
+      setTimeout(() => {
+        setShowSuccessModal(false);
+        navigate('/');
+      }, 2000);
     } catch (error) {
+      console.error("Login error:", error);
+      setShowErrorModal(true);
+      setShowSuccessModal(false);
+    } finally {
       setIsSubmitting(false);
-      console.log(error);
+    }
+  };
+
+  // const [isOnline, setIsOnline] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const handleToggle = () => {
+    const newStatus = !isOnline;
+    setIsOnline(newStatus);
+    updateStatusAPI(newStatus);
+  };
+  const updateStatusAPI = async (status) => {
+    try {
+      setIsLoading(true);
+
+      // Template API call - ganti dengan endpoint API Anda
+      // const response = await fetch('https://api.example.com/user/status', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': 'Bearer YOUR_TOKEN_HERE' // Ganti dengan token Anda
+      //   },
+      //   body: JSON.stringify({
+      //     status: status ? 'online' : 'offline',
+      //     timestamp: new Date().toISOString()
+      //   })
+      // });
+
+      setLastUpdated(new Date().toLocaleTimeString());
+      // if (response.ok) {
+      //   const data = await response.json();
+      //   console.log('Status berhasil diupdate:', data);
+      // } else {
+      //   throw new Error('Gagal mengupdate status');
+      // }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      // Rollback status jika API gagal
+      setIsOnline(!status);
+      alert('Gagal mengupdate status. Silakan coba lagi.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col">
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-80 text-center">
+            <div className="text-green-500 text-4xl mb-2">✓</div>
+            <h2 className="text-lg font-semibold mb-4">Berhasil Masuk</h2>
+            <p className="text-sm text-gray-600">Mohon tunggu sebentar lagi...</p>
+          </div>
+        </div>
+      )}
+
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-80 text-center">
+            <div className="text-red-500 text-4xl mb-2">✕</div>
+            <h2 className="text-lg font-semibold mb-4">Gagal Masuk</h2>
+            <p className="text-sm text-gray-600">Silahkan Coba Lagi.</p>
+            <button
+              onClick={() => setShowErrorModal(false)}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
       {/* <!-- Header --> */}
       <Header />
+
       {/* <!-- Main Content --> */}
       <main className="flex-grow container mx-auto py-12 mb-6">
         <div className="flex">
@@ -73,11 +157,11 @@ export default function Login() {
                   )}
                 </button>
               </form>
-              <ModalOpen
+              {/* <ModalOpen
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
                 link="ini linknya"
-              />
+              /> */}
             </div>
           </div>
 
@@ -87,7 +171,9 @@ export default function Login() {
               <img src={DOG5} alt="" />
             </div>
           </div>
+
         </div>
+        
       </main>
 
       {/* <!-- Footer --> */}
