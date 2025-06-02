@@ -4,6 +4,7 @@ import Footer from './../../../Component/Auth/Footer';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, X } from 'lucide-react';
 import { BUYER_SERVICE } from '../../../Services/Buyer';
+import PAYMENT from '../../../assets/payment.jpg';
 
 export default function Pembayaran() {
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -22,7 +23,7 @@ export default function Pembayaran() {
     } else {
       // Jika tidak ada data state, redirect ke halaman sebelumnya
       console.log('Tidak ada data pesanan');
-      navigate(-1); // atau navigate('/') untuk ke home
+      // navigate(-1); // atau navigate('/') untuk ke home
     }
   }, [location.state, navigate]);
 
@@ -89,7 +90,7 @@ export default function Pembayaran() {
               </h2>
 
               {/* Illustration */}
-              {/* <ChevronDown size={24} /> */}
+              <img src={PAYMENT} alt="Payment Success" />
 
               {/* Message */}
               <p className="text-gray-600 text-lg leading-relaxed mb-8">

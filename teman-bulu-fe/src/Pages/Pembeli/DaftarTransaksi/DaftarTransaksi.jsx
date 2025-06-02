@@ -48,34 +48,27 @@ export default function DaftarTransaksi() {
     try {
       console.log('Processing payment for order:', orderId, 'Amount:', price);
 
-      // Template untuk API call payment
-      // const paymentData = {
-      //   order_id: orderId,
-      //   amount: price,
-      //   payment_method: 'selected_method', // bisa dari state atau props
-      // };
+      const paymentData = {
+        order_id: orderId,
+      };
 
-      // const response = await BUYER_SERVICE.payOrder({order_id: orderId});
+      const response = await BUYER_SERVICE.payOrder(paymentData);
 
-      // if (response.success) {
-      //   alert('Pembayaran berhasil!');
-      //   // Refresh data setelah pembayaran berhasil
-      //   const updatedOrders = await BUYER_SERVICE.buyerOrders();
-      //   setBuyerOrders(updatedOrders.data);
-      // } else {
-      //   alert('Pembayaran gagal: ' + response.message);
-      // }
+      if (response.success) {
+        alert('Pembayaran berhasil!');
+        const updatedOrders = await BUYER_SERVICE.buyerOrders();
+        setBuyerOrders(updatedOrders.data);
+      } else {
+        alert('Pembayaran gagal: ' + response.message);
+      }
 
-      // Untuk sementara, tampilkan alert
-      alert(`Processing payment for Order ID: ${orderId} - Amount: Rp. ${formatPrice(price)}`);
+      alert(`Processing payment for Order ID: ${orderId}}`);
 
     } catch (error) {
       console.error('Error processing payment:', error);
       alert('Terjadi kesalahan saat memproses pembayaran');
     }
   };
-
-
 
   const formatPrice = (price) => {
     return price?.toLocaleString('id-ID');
@@ -89,7 +82,6 @@ export default function DaftarTransaksi() {
   const closeRatingModal = () => {
     setIsRatingModalOpen(false);
     setSelectedOrderId(null);
-    // Reset form saat modal ditutup
     setRating(0);
     setHoverRating(0);
     setFeedback('');
@@ -110,21 +102,20 @@ export default function DaftarTransaksi() {
   const handleSubmitRating = async () => {
     try {
       // Template untuk submit rating API
-      // const ratingData = {
-      //   order_id: selectedOrderId,
-      //   rating: rating,
-      //   feedback: feedback
-      // };
+      const ratingData = {
+        order_id: selectedOrderId,
+        rating: rating,
+      };
 
-      // const response = await BUYER_SERVICE.submitRating(ratingData);
+      const response = await BUYER_SERVICE.rateOrder(ratingData);
 
       console.log('Order ID:', selectedOrderId, 'Rating:', rating, 'Feedback:', feedback);
       alert('Rating berhasil dikirim!');
       closeRatingModal();
 
       // Refresh data setelah submit rating
-      // const updatedOrders = await BUYER_SERVICE.buyerOrders();
-      // setBuyerOrders(updatedOrders.data);
+      const updatedOrders = await BUYER_SERVICE.buyerOrders();
+      setBuyerOrders(updatedOrders.data);
 
     } catch (error) {
       console.error('Error submitting rating:', error);
@@ -175,75 +166,106 @@ export default function DaftarTransaksi() {
     );
   };
 
-  const OrderCard = ({ order, showPaymentButton = false, showCompletedButton = false }) => (
-    <div key={order.order_id} className="max-w-sm bg-white rounded-2xl shadow-lg overflow-hidden flex-shrink-0">
-      {/* Pet Image */}
-      <div className="relative">
-        <img
-          src={DogImage}
-          alt="Pet grooming"
-          className="w-full h-48 object-cover"
-        />
+  const RatingDisplay = ({ rating }) => {
+    return (
+      <div className="flex items-center gap-1 mt-2">
+        <div className="flex">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              size={16}
+              className={`${star <= rating
+                ? 'fill-orange-400 text-orange-400'
+                : 'text-gray-300'
+                }`}
+            />
+          ))}
+        </div>
+        <span className="text-sm text-gray-600 ml-1">({rating}/5)</span>
       </div>
+    );
+  };
 
-      {/* Card Content */}
-      <div className="p-6">
-        {/* Order ID */}
-        <h2 className="text-xl font-bold text-gray-800 mb-4">{order.animal_name}</h2>
 
-        {/* Details */}
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center text-gray-600">
-            <span className="text-sm">
-              <span className="font-medium">Seller Name:</span> {order.seller_name}
-            </span>
-          </div>
-
-          <div className="flex items-center text-gray-600">
-            <span className="text-sm">
-              <span className="font-medium">Tanggal:</span> <span className='font-bold'>{formatDate(order.start_dt)} - {formatDate(order.end_dt)}</span>
-            </span>
-          </div>
-
-          <div className="flex items-center text-gray-600">
-            <span className="text-sm">
-              <span className="font-medium">No Hp:</span> <span className='font-bold'>{order.seller_phone_number}</span>
-            </span>
-          </div>
-
-          <div className="flex items-center text-gray-600">
-            <span className="text-sm">
-              <span className="font-medium">Paket:</span> <span className='font-bold'> {order.skill_name}</span>
-            </span>
-          </div>
+  const OrderCard = ({ order, showPaymentButton = false, showCompletedButton = false }) => {
+    const hasRating = order.rating && order.rating > 0;
+    return (
+      <div key={order.order_id} className="max-w-sm bg-white rounded-2xl shadow-lg overflow-hidden flex-shrink-0">
+        {/* Pet Image */}
+        <div className="relative">
+          <img
+            src={DogImage}
+            alt="Pet grooming"
+            className="w-full h-48 object-cover"
+          />
         </div>
 
-        {/* Price */}
-        <div className="mb-6">
-          <span className="text-xl font-bold text-gray-800">Rp. {formatPrice(order.total_price)}</span>
+        {/* Card Content */}
+        <div className="p-6">
+          {/* Order ID */}
+          <h2 className="text-xl font-bold text-gray-800 mb-4">{order.animal_name}</h2>
+
+          {/* Details */}
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center text-gray-600">
+              <span className="text-sm">
+                <span className="font-medium">Seller Name:</span> {order.seller_name}
+              </span>
+            </div>
+
+            <div className="flex items-center text-gray-600">
+              <span className="text-sm">
+                <span className="font-medium">Tanggal:</span> <span className='font-bold'>{formatDate(order.start_dt)} - {formatDate(order.end_dt)}</span>
+              </span>
+            </div>
+
+            <div className="flex items-center text-gray-600">
+              <span className="text-sm">
+                <span className="font-medium">No Hp:</span> <span className='font-bold'>{order.seller_phone_number}</span>
+              </span>
+            </div>
+
+            <div className="flex items-center text-gray-600">
+              <span className="text-sm">
+                <span className="font-medium">Paket:</span> <span className='font-bold'> {order.skill_name}</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="mb-6 flex justify-between">
+            <span className="text-xl font-bold text-gray-800">Rp. {formatPrice(order.total_price)}</span>
+
+            {/* Tampilkan rating jika ada */}
+            {hasRating && (
+              <p className='flex text-md items-center gap-1'><Star
+                size={20}
+                className='fill-orange-400 text-orange-400' />{order.rating}</p>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          {showPaymentButton && (
+            <button
+              className="w-full bg-[#EF7800] hover:bg-orange-600 text-white font-semibold py-2 px-3 rounded-md transition duration-200 ease-in-out transform hover:scale-105"
+              onClick={() => handlePayment(order.order_id, order.price)}
+            >
+              Bayar Sekarang
+            </button>
+          )}
+
+          {showCompletedButton && !hasRating && (
+            <button
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl transition duration-200 ease-in-out transform hover:scale-105"
+              onClick={() => openRatingModal(order.order_id)}
+            >
+              Pesanan Selesai
+            </button>
+          )}
         </div>
-
-        {/* Action Buttons */}
-        {showPaymentButton && (
-          <button
-            className="w-full bg-[#EF7800] hover:bg-orange-600 text-white font-semibold py-2 px-3 rounded-md transition duration-200 ease-in-out transform hover:scale-105"
-            onClick={() => handlePayment(order.order_id, order.price)}
-          >
-            Bayar Sekarang
-          </button>
-        )}
-
-        {showCompletedButton && (
-          <button
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-xl transition duration-200 ease-in-out transform hover:scale-105"
-            onClick={() => openRatingModal(order.order_id)}
-          >
-            Pesanan Selesai
-          </button>
-        )}
       </div>
-    </div>
-  );
+    )
+  }
 
   const selectedOrder = buyerOrders.orders?.find(order => order.order_id === selectedOrderId);
 
@@ -362,12 +384,12 @@ export default function DaftarTransaksi() {
 
                       {/* Middle - Order Details */}
                       <div className="flex-1">
-                        <h2 className="text-xl font-bold text-gray-800 mb-3">Order #{selectedOrder.order_id}</h2>
+                        <h2 className="text-xl font-bold text-gray-800 mb-3">{selectedOrder.skill_name}</h2>
 
                         <div className="space-y-2 text-gray-600">
                           <div className="flex">
-                            <span className="font-medium w-24">Service ID:</span>
-                            <span>{selectedOrder.service_id}</span>
+                            <span className="font-medium w-24">Seller Name:</span>
+                            <span>{selectedOrder.seller_name}</span>
                           </div>
 
                           <div className="flex">
@@ -382,12 +404,12 @@ export default function DaftarTransaksi() {
 
                           <div className="flex">
                             <span className="font-medium w-24">Seller ID:</span>
-                            <span>{selectedOrder.seller_id}</span>
+                            <span>{selectedOrder.seller_phone_number}</span>
                           </div>
                         </div>
 
                         <div className="mt-4">
-                          <span className="text-xl font-bold text-gray-800">Rp. {formatPrice(selectedOrder.price)}</span>
+                          <span className="text-xl font-bold text-gray-800">Rp. {formatPrice(selectedOrder.total_price)}</span>
                         </div>
                       </div>
 
