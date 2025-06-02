@@ -70,34 +70,12 @@ export default function DaftarPesanan() {
     }
   };
 
-  const openRatingModal = (orderId) => {
-    setSelectedOrderId(orderId);
-    setIsRatingModalOpen(true);
-  };
-
   const closeRatingModal = () => {
     setIsRatingModalOpen(false);
     setSelectedOrderId(null);
     setRating(0);
     setHoverRating(0);
     setFeedback('');
-  };
-
-  const handleRatingClick = (value) => {
-    setRating(value);
-  };
-
-  const handleRatingHover = (value) => {
-    setHoverRating(value);
-  };
-
-  const handleRatingLeave = () => {
-    setHoverRating(0);
-  };
-
-  const handleSubmitRating = () => {
-    console.log('Order ID:', selectedOrderId, 'Rating:', rating, 'Feedback:', feedback);
-    closeRatingModal();
   };
 
   // Component untuk render status badge
