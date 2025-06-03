@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import Header from './../../../Component/Auth/Header';
 import Footer from './../../../Component/Auth/Footer';
 import dayjs from 'dayjs';
-import { ChevronDown, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BUYER_SERVICE } from '../../../Services/Buyer';
 
@@ -108,18 +107,6 @@ export default function DetailPesanan() {
     }
 
   };
-  // address: address,
-
-  // const orderData = {
-  //   serviceId: selectedPaket,
-  //   sellerId: detailService?.seller?.id,
-  //   animalId: selectedAnimal,
-  //   paketId: selectedPaket, // ID paket (sama dengan serviceId)
-  //   price: selectedService?.price, // Harga dari service
-  //   tanggalMulai: startDate,
-  //   tanggalSelesai: isPerluTanggalRange() ? endDate : startDate,
-  //   address: document.getElementById('address').value // Ambil alamat dari textarea
-  // };
 
   const validateForm = () => {
     if (!selectedAnimal || !selectedPaket || !startDate) {
@@ -145,11 +132,10 @@ export default function DetailPesanan() {
       <Header />
 
       <section className="flex flex-grow flex-col md:flex-row gap-8 p-8 max-w-6xl mx-auto">
-        {/* LEFT SECTION - Profile */}
         {detailService && detailService.seller ? (
           <div className="flex flex-col items-center text-center w-full md:w-1/3">
             <img
-              src="https://placehold.co/200x200" // Ganti dengan gambar aslimu
+              src={detailService?.seller?.profile || "http://placeholderimage.com/200x200"}
               alt="Profile"
               className="rounded-lg w-48 h-48 object-cover"
             />
@@ -165,9 +151,7 @@ export default function DetailPesanan() {
           </div>
         )}
 
-        {/* RIGHT SECTION - Pemesanan */}
         <div className="w-full md:w-2/3 space-y-6">
-          {/* Pilih Hewan */}
           <div>
             <label htmlFor="animal" className="block text-gray-700 mb-2">
               Hewan (Dropdown)
@@ -178,7 +162,7 @@ export default function DetailPesanan() {
               value={selectedAnimal}
               onChange={(e) => {
                 setSelectedAnimal(e.target.value);
-                setSelectedPaket(""); // Reset paket saat hewan berubah
+                setSelectedPaket("");
                 setStartDate("");
                 setEndDate("");
               }}
@@ -193,7 +177,6 @@ export default function DetailPesanan() {
             </select>
           </div>
 
-          {/* Pilih Paket */}
           <div>
             <p className="font-semibold">Pilih Paket</p>
             {selectedAnimal ? (
@@ -239,7 +222,6 @@ export default function DetailPesanan() {
             ></textarea>
           </div>
 
-          {/* Pilih Tanggal */}
           <div>
             <p className="font-semibold">Pilih Tanggal</p>
             {isPerluTanggalRange() ? (
@@ -273,7 +255,6 @@ export default function DetailPesanan() {
             )}
           </div>
 
-          {/* Deskripsi Paket */}
           <div>
             <p className="text-lg font-semibold">Deskripsi (Deskripsi Paket Layanan - Hardcode)</p>
             <div className="mt-4 space-y-6 text-sm text-gray-700">
@@ -316,9 +297,6 @@ export default function DetailPesanan() {
               </div>
             </div>
           </div>
-
-          {/* Total dan Tombol */}
-          {/* HARGA AKAN BERUBAH UBAH, DAN BUTTON AKAN MENGARAH KE HALAMAN PEMBAYARAN DAN DAFTAR TRANSAKSI */}
           <div className="text-xl font-semibold mt-4">
             Total Harga:{" "}
             <span className="text-[#EF7800]">Rp {harga().toLocaleString()}</span>

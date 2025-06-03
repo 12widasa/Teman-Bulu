@@ -32,7 +32,7 @@ export default function PesanLayanan() {
   const [animals, setAnimals] = useState([]);
 
   useEffect(() => {
-    async function fetchAnimal() {
+    const fetchAnimal = async () => {
       try {
         const response = await AUTH_SERVICE.listAnimal();
         setAnimals(response.data);
@@ -45,7 +45,7 @@ export default function PesanLayanan() {
   }, []);
 
   useEffect(() => {
-    async function fetchSellerServices() {
+    const fetchSellerServices = async () => {
       try {
         const response = await BUYER_SERVICE.sellerServices();
         setSellerServices(response.data);
@@ -80,7 +80,6 @@ export default function PesanLayanan() {
       }
       const queryString = params.toString();
       const response = await BUYER_SERVICE.filterServices(queryString);
-      // const response = await apiInstance.get(`${ENDPOINTS.SELLER_SERVICES}?${queryString}`);
       setSellerServices(response.data);
     } catch (error) {
       console.log(error);
@@ -177,7 +176,6 @@ export default function PesanLayanan() {
           <div className='flex'>
             <p className='text-3xl pb-6 font-semibold'>Pesan Layanan</p>
           </div>
-          {/* INI AKAN ADA MAPPING AN DATA BUAT DITAMPILKAN SEBAGAI CARD */}
           <div className="flex flex-wrap gap-4">
             {sellerServices.map((service, id) => (
               <div key={service.id}

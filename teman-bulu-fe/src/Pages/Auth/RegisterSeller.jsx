@@ -121,12 +121,9 @@ export default function RegisterSeller() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* <!-- Header --> */}
       <Header />
-      {/* <!-- Main Content --> */}
       <main className="flex-grow container mx-auto py-12 mb-6">
         <div className="flex">
-          {/* <!-- Register Form --> */}
           <div className="w-full md:w-1/2">
             <div className="pr-8">
               <h2 className="text-2xl font-bold mb-4">Daftar</h2>
@@ -160,9 +157,7 @@ export default function RegisterSeller() {
                     Hewan (Multi Select)
                   </label>
 
-                  {/* Multi Select Container */}
                   <div className="relative">
-                    {/* Selected Items Display */}
                     <div
                       onClick={() => setIsOpen(!isOpen)}
                       className="w-full min-h-[42px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer bg-white flex flex-wrap items-center gap-1"
@@ -195,7 +190,6 @@ export default function RegisterSeller() {
                       />
                     </div>
 
-                    {/* Dropdown Options */}
                     {isOpen && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                         {animals.map(animal => {
@@ -210,7 +204,7 @@ export default function RegisterSeller() {
                               <input
                                 type="checkbox"
                                 checked={isSelected}
-                                onChange={() => { }} // Handled by parent onClick
+                                onChange={() => { }}
                                 className="pointer-events-none"
                               />
                               {animal.name}
@@ -255,7 +249,6 @@ export default function RegisterSeller() {
                     id="cv"
                     onChange={handleChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  // onChange={handleFileChange}
                   />
                   <span className="bg-gray-500 cursor-pointer text-white px-4 py-2 whitespace-nowrap">Choose</span>
                   <span className="flex-grow bg-white px-4 py-2 text-gray-600 truncate">{filesName.cv || 'Pilih CV'}</span>
@@ -267,7 +260,6 @@ export default function RegisterSeller() {
                     id="certificate"
                     onChange={handleChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  // onChange={handleFileChange}
                   />
                   <span className="bg-gray-500 cursor-pointer text-white px-4 py-2 whitespace-nowrap">Choose</span>
                   <span className="flex-grow bg-white px-4 py-2 text-gray-600 truncate">{filesName.certificate || 'Pilih Sertifikat'}</span>
@@ -294,7 +286,7 @@ export default function RegisterSeller() {
                     <span>
                       Setelah daftar, silahkan menghubungi Link WA berikut untuk Verifikasi dan melanjutkan ke tahap interview
                     </span>
-                    <span>Link WA :  ghjsjkioahknaiujalknagahajjka</span>
+                    <span>Link WA : ...</span>
                   </div>
                 </div>
               </form>
@@ -302,12 +294,11 @@ export default function RegisterSeller() {
               <ModalOpen
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                link="ini linknya"
+                link="http://wa.me/..."
               />
             </div>
           </div>
 
-          {/* <!-- Image Placeholder --> */}
           <div className="w-full md:w-1/2 mt-8 md:mt-0">
             <div className="h-72 md:h-full rounded justify-center relative">
               <img src={Image} alt="" />
@@ -315,8 +306,6 @@ export default function RegisterSeller() {
           </div>
         </div>
       </main>
-
-      {/* <!-- Footer --> */}
       <Footer />
     </div>
   )

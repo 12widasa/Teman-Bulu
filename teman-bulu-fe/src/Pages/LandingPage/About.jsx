@@ -1,23 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react';
 import Header from './../../Component/Auth/Header';
 import 'keen-slider/keen-slider.min.css';
 import { useKeenSlider } from 'keen-slider/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import DogImage1 from './../../assets/dog1.jpg';
 import DogImage2 from './../../assets/dog2.jpg';
 import CatImage1 from './../../assets/cat1.jpg';
 import CatImage2 from './../../assets/cat2.jpg';
-import CatImage3 from './../../assets/cat3.jpg';
-import CatImage4 from './../../assets/cat4.jpg';
 import HamsterImage from './../../assets/hamster1.jpg';
-import RabbitImage1 from './../../assets/rabbit1.jpg';
-import RabbitImage2 from './../../assets/rabbit2.jpg';
-import RabbitImage3 from './../../assets/rabbit3.jpg';
-import CSImage1 from './../../assets/cs1.jpg';
 import CSImage2 from './../../assets/cs2.jpg';
 import Call from './../../assets/emergency-call.png';
 import Footer from './../../Component/Auth/Footer';
-import { Link } from 'react-router-dom';
 
 export default function About() {
   const images = [
@@ -35,7 +27,6 @@ export default function About() {
     <div>
       <Header />
       <main className='flex flex-col justify-center items-center w-full p-2 h-full'>
-        {/* About */}
         <section className='flex-grow container mx-auto mt-4 pb-12 mb-2'>
           <div className='flex'>
             <div className='w-full md:w-1/2'>

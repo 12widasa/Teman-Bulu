@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import ModalOpen from '../../../Component/Auth/ModalOpen';
+import React, { useState } from 'react'
 import Header from '../../../Component/Auth/Header';
 import Footer from '../../../Component/Auth/Footer';
 import Image from '../../../assets/kuceng.jpg';
-import { ChevronDown, CircleAlert, Loader2, X } from 'lucide-react';
-import { AUTH_SERVICE } from './../../../Services/Auth';
+import { Loader2 } from 'lucide-react';
+import { BUYER_SERVICE } from '../../../Services/Buyer';
 
 export default function ProfileBuyer() {
-  const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedAnimals, setSelectedAnimals] = useState([]);
   const [updateProfileSeller, setUpdateProfileSeller] = useState({
     full_name: '',
     email: '',
@@ -30,7 +27,7 @@ export default function ProfileBuyer() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      await AUTH_SERVICE.updateProfileBuyer(updateProfileSeller);
+      await BUYER_SERVICE.updateProfileBuyer(updateProfileSeller);
       setIsSubmitting(false);
     } catch (error) {
       setIsSubmitting(false);
@@ -39,12 +36,9 @@ export default function ProfileBuyer() {
   };
   return (
     <div className="min-h-screen flex flex-col">
-      {/* <!-- Header --> */}
       <Header />
-      {/* <!-- Main Content --> */}
       <main className="flex-grow container mx-auto py-12 mb-6">
         <div className="flex">
-          {/* <!-- Register Form --> */}
           <div className="w-full md:w-1/2">
             <div className="pr-8">
               <h2 className="text-2xl font-bold mb-4">Ubah Profil</h2>
@@ -96,9 +90,7 @@ export default function ProfileBuyer() {
             </div>
           </div>
 
-          {/* <!-- Image Placeholder --> */}
           <div className="w-full md:w-1/2 mt-8 md:mt-0 flex flex-col items-center">
-            {/* Gambar */}
             <div className="w-full flex justify-center mb-4">
               <div className="rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
                 <img
@@ -111,8 +103,6 @@ export default function ProfileBuyer() {
           </div>
         </div>
       </main >
-
-      {/* <!-- Footer --> */}
       < Footer />
     </div >
   )

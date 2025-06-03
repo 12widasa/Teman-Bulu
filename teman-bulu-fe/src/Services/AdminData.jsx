@@ -31,7 +31,8 @@ apiInstance.interceptors.response.use(
 
 const ENDPOINTS = {
   GET_USER: "/users",
-  VERIFY_USER: "/verify"
+  VERIFY_USER: "/verify",
+  DECLINE_USER: "/decline"
 }
 
 export const ADMIN_DATA_SERVICE = {
@@ -43,4 +44,20 @@ export const ADMIN_DATA_SERVICE = {
       handleApiError(error, "Error Login");
     }
   },
+  verifyUser: async (payload) => {
+    try {
+      const response = await apiInstance.post(ENDPOINTS.VERIFY_USER, payload);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, "Error Login");
+    }
+  },
+  declineUser: async (payload) => {
+    try {
+      const response = await apiInstance.post(ENDPOINTS.DECLINE_USER, payload);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, "Error Login");
+    }
+  }
 }

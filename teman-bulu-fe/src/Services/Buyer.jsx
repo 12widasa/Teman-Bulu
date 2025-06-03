@@ -95,4 +95,12 @@ export const BUYER_SERVICE = {
       handleApiError(error, "Error get Order List")
     }
   },
+  updateProfileBuyer: async (payload) => {
+    try {
+      const response = await apiInstance.post(ENDPOINTS.UPDATE_PROFILE_BUYER, payload);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, "Error Update Profile Buyer");
+    }
+  }
 }

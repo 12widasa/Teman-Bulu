@@ -1,6 +1,7 @@
 import { Check, Link, LogOut, Menu, User } from 'lucide-react';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import LOGO from '../../assets/logo.png';
 
 export default function Sidebar({ children }) {
   return (
@@ -12,7 +13,7 @@ export default function Sidebar({ children }) {
             <button className="mb-4 ">
               <Menu strokeWidth={1.5} />
             </button>
-            Logo Kayak e
+            <img src={LOGO} className='w-40' alt="" />
           </div>
 
           {/* Nav items */}

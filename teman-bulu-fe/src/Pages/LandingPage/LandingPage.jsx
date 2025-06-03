@@ -10,14 +10,11 @@ import CatImage2 from './../../assets/cat2.jpg';
 import CatImage3 from './../../assets/cat3.jpg';
 import CatImage4 from './../../assets/cat4.jpg';
 import HamsterImage from './../../assets/hamster1.jpg';
-import RabbitImage1 from './../../assets/rabbit1.jpg';
-import RabbitImage2 from './../../assets/rabbit2.jpg';
-import RabbitImage3 from './../../assets/rabbit3.jpg';
-import CSImage1 from './../../assets/cs1.jpg';
 import CSImage2 from './../../assets/cs2.jpg';
 import Call from './../../assets/emergency-call.png';
 import Footer from './../../Component/Auth/Footer';
 import { Link } from 'react-router-dom';
+import { BUYER_SERVICE } from '../../Services/Buyer';
 
 export default function LandingPage() {
   const images = [
@@ -26,11 +23,25 @@ export default function LandingPage() {
     CatImage1,
     CatImage2,
   ];
+  const [sellerServices, setSellerServices] = useState([]);
 
   const [sliderRef, slider] = useKeenSlider({
     loop: true,
     slides: { perView: 1 },
   });
+
+  useEffect(() => {
+    async function fetchSellerServices() {
+      try {
+        const response = await BUYER_SERVICE.sellerServices();
+        setSellerServices(response.data);
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchSellerServices();
+  }, [])
   return (
     <div>
       <Header />
@@ -130,46 +141,29 @@ export default function LandingPage() {
             <div className='flex'>
               <p className='text-3xl pb-6 font-semibold'>Pesan Layanan</p>
             </div>
-            {/* INI AKAN ADA MAPPING AN DATA BUAT DITAMPILKAN SEBAGAI CARD */}
             <div className='flex gap-4'>
-
-              {/* Card 1 */}
-              <div className="w-1/3 bg-white rounded-lg overflow-hidden">
-                <div className="aspect-[6/4] overflow-hidden">
-                  <img src={RabbitImage1} alt="Cat 1" className="w-full h-full object-cover" />
+              {sellerServices?.slice(0, 3).map((service, id) => (
+                <div key={service.id} className="w-1/3 bg-white rounded-lg overflow-hidden">
+                  <div className="aspect-[6/4] overflow-hidden">
+                    <img
+                      src={service.profile}
+                      alt={`Service ${id + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="pt-4">
+                    <h3 className="text-lg font-semibold mb-1">
+                      {service.full_name}
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-3">
+                      {service.description}
+                    </p>
+                  </div>
                 </div>
-                <div className="pt-4">
-                  <h3 className="text-lg font-semibold mb-1">Walking</h3>
-                  <p className="text-sm text-gray-600 mb-3">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Laboriosam tenetur fugit similique laudantium nostrum eum perspiciatis, molestias nobis ratione quae odit officia autem officiis laborum modi dicta itaque debitis. Voluptatum.</p>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="w-1/3 bg-white rounded-lg overflow-hidden">
-                <div className="aspect-[6/4] overflow-hidden">
-                  <img src={RabbitImage2} alt="Cat 2" className="w-full h-full object-cover" />
-                </div>
-                <div className="pt-4">
-                  <h3 className="text-lg font-semibold mb-1">Grooming</h3>
-                  <p className="text-sm text-gray-600 mb-3">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic ut nobis voluptatum velit. Quibusdam voluptatum explicabo expedita, vitae debitis, unde non recusandae aliquam, ratione magnam molestiae quaerat. Mollitia, non doloribus?</p>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="w-1/3 bg-white rounded-lg overflow-hidden">
-                <div className="aspect-[6/4] overflow-hidden">
-                  <img src={RabbitImage3} alt="Hamster" className="w-full h-full object-cover" />
-                </div>
-                <div className="pt-4">
-                  <h3 className="text-lg font-semibold mb-1">Boarding</h3>
-                  <p className="text-sm text-gray-600 mb-3">Lorem ipsum dolor sit amet consectetur adipisicing elit. Delectus in nulla, illo dolor autem deserunt consequuntur amet quam totam labore accusantium aliquam enim ipsa quod vitae pariatur cum numquam non?</p>
-                </div>
-              </div>
-
+              ))}
             </div>
 
             <div className='flex justify-center mt-8'>
-              {/* NANTI AKAN NGELINK KE PESAN LAYANAN */}
               <Link className='w-full' to="/pesan-layanan">
                 <button
                   type="submit"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Header from './../../../Component/Auth/Header';
 import Footer from '../../../Component/Auth/Footer';
-import { ArrowLeft, Calendar, Package, Phone, Star, User, X } from 'lucide-react';
+import { ArrowLeft, Star, X } from 'lucide-react';
 import DogImage from '../../../assets/dog1.jpg';
 import { BUYER_SERVICE } from '../../../Services/Buyer';
 
@@ -12,12 +12,10 @@ export default function DaftarTransaksi() {
   const [hoverRating, setHoverRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [buyerOrders, setBuyerOrders] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchBuyerOrder = async () => {
       try {
-        setIsLoading(true);
         const response = await BUYER_SERVICE.buyerOrders();
         setBuyerOrders(response.data);
         console.log(response.data);
@@ -44,10 +42,8 @@ export default function DaftarTransaksi() {
     });
   };
 
-  const handlePayment = async (orderId, price) => {
+  const handlePayment = async (orderId) => {
     try {
-      console.log('Processing payment for order:', orderId, 'Amount:', price);
-
       const paymentData = {
         order_id: orderId,
       };
@@ -55,14 +51,11 @@ export default function DaftarTransaksi() {
       const response = await BUYER_SERVICE.payOrder(paymentData);
 
       if (response.success) {
-        alert('Pembayaran berhasil!');
         const updatedOrders = await BUYER_SERVICE.buyerOrders();
         setBuyerOrders(updatedOrders.data);
       } else {
         alert('Pembayaran gagal: ' + response.message);
       }
-
-      alert(`Processing payment for Order ID: ${orderId}}`);
 
     } catch (error) {
       console.error('Error processing payment:', error);
@@ -101,7 +94,6 @@ export default function DaftarTransaksi() {
 
   const handleSubmitRating = async () => {
     try {
-      // Template untuk submit rating API
       const ratingData = {
         order_id: selectedOrderId,
         rating: rating,
@@ -109,11 +101,10 @@ export default function DaftarTransaksi() {
 
       const response = await BUYER_SERVICE.rateOrder(ratingData);
 
-      console.log('Order ID:', selectedOrderId, 'Rating:', rating, 'Feedback:', feedback);
-      alert('Rating berhasil dikirim!');
+      // console.log('Order ID:', selectedOrderId, 'Rating:', rating, 'Feedback:', feedback);
+      // alert('Rating berhasil dikirim!');
       closeRatingModal();
 
-      // Refresh data setelah submit rating
       const updatedOrders = await BUYER_SERVICE.buyerOrders();
       setBuyerOrders(updatedOrders.data);
 
@@ -165,28 +156,6 @@ export default function DaftarTransaksi() {
       </span>
     );
   };
-
-  const RatingDisplay = ({ rating }) => {
-    return (
-      <div className="flex items-center gap-1 mt-2">
-        <div className="flex">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <Star
-              key={star}
-              size={16}
-              className={`${star <= rating
-                ? 'fill-orange-400 text-orange-400'
-                : 'text-gray-300'
-                }`}
-            />
-          ))}
-        </div>
-        <span className="text-sm text-gray-600 ml-1">({rating}/5)</span>
-      </div>
-    );
-  };
-
-
   const OrderCard = ({ order, showPaymentButton = false, showCompletedButton = false }) => {
     const hasRating = order.rating && order.rating > 0;
     return (
@@ -202,8 +171,10 @@ export default function DaftarTransaksi() {
 
         {/* Card Content */}
         <div className="p-6">
-          {/* Order ID */}
-          <h2 className="text-xl font-bold text-gray-800 mb-4">{order.animal_name}</h2>
+          <div className='flex items-center mb-4 justify-between'>
+            <h2 className="text-xl font-bold text-gray-800">{order.animal_name}</h2>
+            <StatusBadge status={order.status} />
+          </div>
 
           {/* Details */}
           <div className="space-y-3 mb-6">
@@ -240,7 +211,7 @@ export default function DaftarTransaksi() {
             {hasRating && (
               <p className='flex text-md items-center gap-1'><Star
                 size={20}
-                className='fill-orange-400 text-orange-400' />{order.rating}</p>
+                className='fill-orange-400 text-orange-400' />{order.rating || 0}</p>
             )}
           </div>
 
@@ -248,7 +219,7 @@ export default function DaftarTransaksi() {
           {showPaymentButton && (
             <button
               className="w-full bg-[#EF7800] hover:bg-orange-600 text-white font-semibold py-2 px-3 rounded-md transition duration-200 ease-in-out transform hover:scale-105"
-              onClick={() => handlePayment(order.order_id, order.price)}
+              onClick={() => handlePayment(order.order_id)}
             >
               Bayar Sekarang
             </button>
@@ -370,10 +341,8 @@ export default function DaftarTransaksi() {
                     </button>
                   </div>
 
-                  {/* Content */}
                   <div className="p-6">
                     <div className="flex gap-6 flex-col lg:flex-row">
-                      {/* Left Side - Order Image */}
                       <div className="flex-shrink-0">
                         <img
                           src={DogImage}
@@ -382,7 +351,6 @@ export default function DaftarTransaksi() {
                         />
                       </div>
 
-                      {/* Middle - Order Details */}
                       <div className="flex-1">
                         <h2 className="text-xl font-bold text-gray-800 mb-3">{selectedOrder.skill_name}</h2>
 
@@ -413,20 +381,15 @@ export default function DaftarTransaksi() {
                         </div>
                       </div>
 
-                      {/* Right Side - Rating Section */}
                       <div className="flex-shrink-0 w-full lg:w-72 bg-gray-50 rounded-lg p-6">
-                        {/* Status Badge */}
                         <div className="mb-4">
                           <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-medium">
                             Selesai
                           </span>
                         </div>
 
-                        {/* Service Quality */}
                         <div className="mb-6">
                           <h3 className="font-bold text-gray-800 mb-3">Beri Nilai Layanan</h3>
-
-                          {/* Star Rating */}
                           <div className="flex gap-1 mb-4">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <button
@@ -448,7 +411,6 @@ export default function DaftarTransaksi() {
                           </div>
                         </div>
 
-                        {/* Feedback Section */}
                         <div className="mb-6">
                           <h3 className="font-bold text-gray-800 mb-3">Kritik dan Saran</h3>
                           <textarea
@@ -459,7 +421,6 @@ export default function DaftarTransaksi() {
                           />
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="flex gap-3">
                           <button
                             onClick={closeRatingModal}

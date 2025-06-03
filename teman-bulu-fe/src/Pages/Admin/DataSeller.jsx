@@ -9,6 +9,7 @@ export default function DataSeller() {
   const [adminDataSeller, setAdminDataSeller] = useState([]);
 
   useEffect(() => {
+
     const fetchData = async () => {
       try {
         const response = await ADMIN_DATA_SERVICE.getUser({ role_id: 2 });

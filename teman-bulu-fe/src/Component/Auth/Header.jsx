@@ -11,18 +11,13 @@ export default function Header() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Function to check if token is valid (not expired)
   const isTokenValid = (token) => {
     if (!token) return false;
-
     try {
-      // If token is JWT, decode and check expiration
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Date.now() / 1000;
       return payload.exp > currentTime;
     } catch (error) {
-      // If token is not JWT or parsing fails, assume it's valid if it exists
-      // You can implement your own token validation logic here
       return true;
     }
   };
@@ -31,8 +26,6 @@ export default function Header() {
     try {
       const token = localStorage.getItem("token");
       if (!token) return null;
-
-      // If token is JWT, decode to get role
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.role_id;
     } catch (error) {
@@ -48,7 +41,6 @@ export default function Header() {
       if (token && isTokenValid(token)) {
         setIsLoggedIn(true);
       } else {
-        // Remove invalid or expired token
         if (token) {
           localStorage.removeItem("token");
         }
@@ -86,7 +78,7 @@ export default function Header() {
     } else if (role === 2) {
       navigate("/profile-seller");
     } else {
-      navigate("/unauthorized");
+      navigate("/landingpage");
     }
   };
 

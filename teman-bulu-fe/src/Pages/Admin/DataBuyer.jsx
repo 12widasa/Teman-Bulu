@@ -19,26 +19,6 @@ export default function DataBuyer() {
     }
     fetchData();
   }, [])
-  console.log(adminDataBuyer);
-
-  const dataBuyer = [
-    {
-      fullName: 'Andi Saputra',
-      username: 'andis',
-      email: 'andi@example.com',
-    },
-    {
-      fullName: 'Budi Santoso',
-      username: 'budisan',
-      email: 'budi@example.com',
-    },
-    {
-      fullName: 'Clara Dewi',
-      username: 'clarad',
-      email: 'clara@example.com',
-    },
-  ];
-
   return (
     <Sidebar>
       <h1 className="text-2xl font-bold mb-4">Data Pembeli</h1>

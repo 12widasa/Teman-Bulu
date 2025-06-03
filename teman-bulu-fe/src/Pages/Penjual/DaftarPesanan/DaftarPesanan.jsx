@@ -6,11 +6,6 @@ import DogImage from '../../../assets/dog1.jpg';
 import { SELLER_SERVICE } from '../../../Services/Seller';
 
 export default function DaftarPesanan() {
-  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [feedback, setFeedback] = useState('');
   const [sellerOrders, setSellerOrders] = useState({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -18,7 +13,6 @@ export default function DaftarPesanan() {
     const fetchSellerOrders = async () => {
       try {
         setIsLoading(true);
-        // Ganti dengan API service yang sesuai
         const response = await SELLER_SERVICE.sellerOrders();
         setSellerOrders(response.data);
         console.log('Seller Orders:', response.data);
@@ -38,7 +32,6 @@ export default function DaftarPesanan() {
     return sellerOrders.orders.filter(order => order.status === status);
   };
 
-  // Function to format timestamp to readable date
   const formatDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleDateString('id-ID', {
@@ -48,12 +41,10 @@ export default function DaftarPesanan() {
     });
   };
 
-  // Function to format price
   const formatPrice = (price) => {
     return price?.toLocaleString('id-ID');
   };
 
-  // Function to handle complete order (for seller)
   const handleCompleteOrder = async (orderId) => {
     try {
       const response = await SELLER_SERVICE.updateStatus({ order_id: orderId });
@@ -70,15 +61,6 @@ export default function DaftarPesanan() {
     }
   };
 
-  const closeRatingModal = () => {
-    setIsRatingModalOpen(false);
-    setSelectedOrderId(null);
-    setRating(0);
-    setHoverRating(0);
-    setFeedback('');
-  };
-
-  // Component untuk render status badge
   const StatusBadge = ({ status }) => {
     const getStatusConfig = (status) => {
       switch (status) {
@@ -122,7 +104,6 @@ export default function DaftarPesanan() {
     );
   };
 
-  // Component untuk render order card
   const OrderCard = ({ order, showCompleteButton = false }) => (
     <div key={order.id} className="max-w-sm bg-white rounded-2xl shadow-lg overflow-hidden flex-shrink-0">
       {/* Pet Image */}
@@ -187,11 +168,6 @@ export default function DaftarPesanan() {
         <div className="mb-6">
           <div className="space-y-1">
             <span className="text-lg font-bold text-gray-800">Rp. {formatPrice(order.total_price)}</span>
-            {/* {order.total_price && (
-              <div className="text-sm text-gray-600">
-                Total: Rp. {formatPrice(order.total_price)}
-              </div>
-            )} */}
           </div>
         </div>
 
@@ -207,8 +183,6 @@ export default function DaftarPesanan() {
       </div>
     </div>
   );
-
-  const selectedOrder = sellerOrders.orders?.find(order => order.id === selectedOrderId);
 
   if (isLoading) {
     return (
@@ -244,7 +218,6 @@ export default function DaftarPesanan() {
           </div>
         </section>
 
-        {/* SECTION CARD BELUM BAYAR (Status 0) */}
         <section className='flex flex-col mt-8'>
           <h2 className="text-xl font-semibold mb-6">Belum Bayar</h2>
 

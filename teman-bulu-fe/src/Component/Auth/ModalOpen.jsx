@@ -19,7 +19,7 @@ export default function ModalOpen({ isOpen, onClose, link }) {
           <p className="mt-4">
             Link WA:{' '}
             <a href={link} className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">
-              {link}
+              Link
             </a>
           </p>
         </div>

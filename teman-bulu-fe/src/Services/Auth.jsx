@@ -34,12 +34,10 @@ const ENDPOINTS = {
   REGISTER_BUYER: "/registerBuyer",
   REGISTER_SELLER: "/registerSeller",
   ANIMALS: "/animals",
-  UPDATE_PROFILE_BUYER: "/updateProfileBuyer",
-  UPDATE_PROFILE_SELLER: "/updateProfileSeller",
 }
 
 export const AUTH_SERVICE = {
-  async loginUser(payload) {
+  loginUser: async (payload) => {
     try {
       console.log(email, password)
       const response = await apiInstance.post(ENDPOINTS.LOGIN, payload);
@@ -48,7 +46,7 @@ export const AUTH_SERVICE = {
       handleApiError(error, "Error Login");
     }
   },
-  async registerBuyer(payload) {
+  registerBuyer: async (payload) => {
     try {
       const response = await apiInstance.post(ENDPOINTS.REGISTER_BUYER, payload);
       return response.data;
@@ -56,7 +54,7 @@ export const AUTH_SERVICE = {
       handleApiError(error, "Error Register");
     }
   },
-  async registerSeller(payload) {
+  registerSeller: async (payload) => {
     try {
       const response = await apiInstance.post(ENDPOINTS.REGISTER_SELLER, payload);
       return response.data;
@@ -64,20 +62,12 @@ export const AUTH_SERVICE = {
       handleApiError(error, "Error Register");
     }
   },
-  async listAnimal() {
+  listAnimal: async () => {
     try {
       const response = await apiInstance.get(ENDPOINTS.ANIMALS);
       return response.data;
     } catch (error) {
       handleApiError(error, "Error List Animal");
-    }
-  },
-  updateProfileBuyer: async (payload) => {
-    try {
-      const response = await apiInstance.post(ENDPOINTS.UPDATE_PROFILE_BUYER, payload);
-      return response.data;
-    } catch (error) {
-      handleApiError(error, "Error Update Profile Buyer");
     }
   }
 }

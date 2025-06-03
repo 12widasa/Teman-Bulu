@@ -42,12 +42,9 @@ export default function RegisterBuyer() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* <!-- Header --> */}
       <Header />
-      {/* <!-- Main Content --> */}
       <main className="flex-grow container mx-auto py-12 mb-6 md:px-4 lg:px-4 px-4">
         <div className="flex">
-          {/* <!-- Login Form --> */}
           <div className="w-full md:w-1/2">
             <div className="pr-8">
               <h2 className="text-2xl font-bold mb-4">Daftar</h2>
@@ -85,7 +82,7 @@ export default function RegisterBuyer() {
               <ModalOpen
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                link="ini linknya"
+                link="http://wa.me/..."
               />
             </div>
           </div>

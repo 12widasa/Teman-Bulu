@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import ModalOpen from '../../../Component/Auth/ModalOpen';
 import Header from '../../../Component/Auth/Header';
 import Footer from '../../../Component/Auth/Footer';
 import Image from '../../../assets/kuceng.jpg';
-import { ChevronDown, CircleAlert, Loader2, X } from 'lucide-react';
+import { ChevronDown, Loader2, X } from 'lucide-react';
 import { AUTH_SERVICE } from '../../../Services/Auth';
 import { SELLER_SERVICE } from './../../../Services/Seller';
 
 export default function ProfileSeller() {
-  const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [animals, setAnimals] = useState([]);
   const [selectedAnimals, setSelectedAnimals] = useState([]);
@@ -95,7 +93,7 @@ export default function ProfileSeller() {
   };
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       try {
         const [animalRes, profileRes] = await Promise.all([
           AUTH_SERVICE.listAnimal(),
@@ -184,12 +182,10 @@ export default function ProfileSeller() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* <!-- Header --> */}
+
       <Header />
-      {/* <!-- Main Content --> */}
       <main className="flex-grow container mx-auto py-12 mb-6">
         <div className="flex">
-          {/* <!-- Register Form --> */}
           <div className="w-full md:w-1/2">
             <div className="pr-8">
               <h2 className="text-2xl font-bold mb-4">Daftar</h2>
@@ -238,10 +234,7 @@ export default function ProfileSeller() {
                     <label className="block text-gray-700 mb-2">
                       Hewan
                     </label>
-
-                    {/* Multi Select Container */}
                     <div className="relative">
-                      {/* Selected Items Display */}
                       <div
                         onClick={() => setIsOpen(!isOpen)}
                         className="w-full min-h-[42px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer bg-white flex flex-wrap items-center gap-1"
@@ -328,7 +321,6 @@ export default function ProfileSeller() {
                     id="profile"
                     onChange={handleChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  // onChange={handleFileChange}
                   />
                   <span className="bg-gray-500 cursor-pointer text-white px-4 py-2 whitespace-nowrap">Choose</span>
                   <span className="flex-grow bg-white px-4 py-2 text-gray-600 truncate">{filesName.profile || 'Pilih Profile'}</span>
@@ -340,7 +332,6 @@ export default function ProfileSeller() {
                     id="cv"
                     onChange={handleChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  // onChange={handleFileChange}
                   />
                   <span className="bg-gray-500 cursor-pointer text-white px-4 py-2 whitespace-nowrap">Choose</span>
                   <span className="flex-grow bg-white px-4 py-2 text-gray-600 truncate">{filesName.cv || 'Pilih CV'}</span>
@@ -352,7 +343,6 @@ export default function ProfileSeller() {
                     id="certificate"
                     onChange={handleChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  // onChange={handleFileChange}
                   />
                   <span className="bg-gray-500 cursor-pointer text-white px-4 py-2 whitespace-nowrap">Choose</span>
                   <span className="flex-grow bg-white px-4 py-2 text-gray-600 truncate">{filesName.certificate || 'Pilih Sertifikat'}</span>
@@ -376,9 +366,7 @@ export default function ProfileSeller() {
             </div>
           </div>
 
-          {/* <!-- Image Placeholder --> */}
           <div className="w-full md:w-1/2 mt-8 md:mt-0 flex flex-col items-center">
-            {/* Gambar */}
             <div className="w-full flex justify-center mb-4">
               <div className="rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
                 <img
@@ -431,7 +419,6 @@ export default function ProfileSeller() {
         </div >
       </main >
 
-      {/* <!-- Footer --> */}
       < Footer />
     </div >
   )
