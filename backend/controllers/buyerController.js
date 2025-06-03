@@ -406,7 +406,8 @@ const rateOrder = async (req, res) => {
       });
     }
 
-    if (orderCheck[0].status === 0 || orderCheck[0].status === 2) {
+    // order status 0: belum bayar, 1: sedang berlangsung
+    if (orderCheck[0].status === 0 || orderCheck[0].status === 1) {
       logger.info(
         `${logHeader}: order status ${orderCheck[0].status} is not allowed`
       );

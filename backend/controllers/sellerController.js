@@ -33,6 +33,31 @@ const pool = mysql.createPool({
 });
 const bcrypt = require("bcryptjs");
 
+const getProfile = async (req, res) => {
+  const logHeader = 'apiGetProfile';
+  logger.info(`${logHeader}`);
+
+  try {
+    logger.info(`${logHeader}: trying to get seller profile`);
+    
+    const [result] = await pool.query(
+      `SELECT * FROM user WHERE id = ${req.user.id}`
+    )
+
+    return res.status(200).json({
+      status: "success",
+      message: 'Get profile successful',
+      data: result
+    })
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      status: 'failed',
+      message: 'Server error'
+    })
+  }
+}
+
 const updateProfileSeller = async (req, res) => {
   const logHeader = "apiUpdateProfileSeller";
   logger.info(`${logHeader}`, req.body);
@@ -41,7 +66,7 @@ const updateProfileSeller = async (req, res) => {
     full_name,
     email,
     password,
-    animal_id,
+    animal_ids,
     birth,
     phone_number,
     address,
@@ -56,11 +81,10 @@ const updateProfileSeller = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      `UPDATE "user" SET
+      `UPDATE user SET
           full_name = '${full_name}',
           email = '${email}',
           password = '${hashedPassword}',
-          animal_id = '${animal_id}',
           birth = '${birth}',
           phone_number = '${phone_number}',
           address = '${address}',
@@ -71,6 +95,20 @@ const updateProfileSeller = async (req, res) => {
           WHERE id = ${req.user.id}
         `
     );
+
+    const deleteAnimals = await pool.query(
+      `DELETE FROM user_animals WHERE user_id = ${req.user.id};`
+    );
+
+    const userAnimalsValues = animal_ids
+      .map((animal_id) => `(${req.user.id}, ${animal_id})`)
+      .join(",");
+    
+    if (userAnimalsValues.length > 0) {
+      const [insertSellerAnimals] = await pool.query(
+        `INSERT INTO user_animals (user_id, animal_id) VALUES ${userAnimalsValues};`
+      );
+    }
 
     return res.status(201).json({
       status: "success",
@@ -220,10 +258,16 @@ const changeStatus = async (req, res) => {
   const logHeader = "apiChangeStatus";
   logger.info(`${logHeader}`, req.user.id);
 
-  const { status } = req.body;
+  let { status } = req.body;
 
   try {
     logger.info(`${logHeader}: trying to change status`);
+    if (status === 0) {
+      status = false;
+    } else {
+      status === true
+    }
+
     await pool.query(
       `UPDATE user SET status = ? WHERE id = ? AND role_id = 2`,
       [status, req.user.id]
@@ -248,5 +292,6 @@ module.exports = {
   updateStatus,
   getServices,
   getSellerOrders,
-  changeStatus
+  changeStatus,
+  getProfile
 };
