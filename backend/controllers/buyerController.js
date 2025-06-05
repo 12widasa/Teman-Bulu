@@ -138,6 +138,7 @@ const getSeller = async (req, res) => {
           user.id,
           user.full_name,
           user.description,
+          user.profile,
           ROUND(AVG(\`order\`.rating), 2) AS average_rating
         FROM user 
         LEFT JOIN service ON user.id = service.seller_id 
