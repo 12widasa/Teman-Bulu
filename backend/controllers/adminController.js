@@ -62,7 +62,7 @@ const verifySeller = async (req, res) => {
 
   try {
     logger.info(`${logHeader}: trying to verify seller`);
-    const { id: seller_id } = req.body;
+    const { seller_id } = req.body;
 
     const [result] = await pool.query(
       `SELECT id FROM user WHERE id = ? and role_id = 2`,
