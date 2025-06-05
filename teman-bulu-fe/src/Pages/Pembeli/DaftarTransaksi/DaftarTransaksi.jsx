@@ -12,6 +12,7 @@ export default function DaftarTransaksi() {
   const [hoverRating, setHoverRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [buyerOrders, setBuyerOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchBuyerOrder = async () => {
@@ -49,10 +50,11 @@ export default function DaftarTransaksi() {
       };
 
       const response = await BUYER_SERVICE.payOrder(paymentData);
-
-      if (response.success) {
+      console.log(response);
+      if (response.status = "success") {
         const updatedOrders = await BUYER_SERVICE.buyerOrders();
         setBuyerOrders(updatedOrders.data);
+        alert('Pembayaran berhasil: ' + response.message);
       } else {
         alert('Pembayaran gagal: ' + response.message);
       }

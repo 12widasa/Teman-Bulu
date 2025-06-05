@@ -47,12 +47,12 @@ export default function Pembayaran() {
     const orderId = orderData?.responseData;
     try {
       const response = await BUYER_SERVICE.payOrder({ order_id: orderId });
+      openModal();
+      // navigate("/daftar-transaksi");
       return response.data;
     } catch (error) {
       console.log(error);
     }
-
-    openModal();
   };
 
   return (
@@ -62,7 +62,10 @@ export default function Pembayaran() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 relative">
             <button
-              onClick={closeModal}
+              onClick={() => {
+                closeModal();
+                navigate('/daftar-transaksi');
+              }}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
             >
               <X size={24} />
@@ -80,7 +83,10 @@ export default function Pembayaran() {
               </p>
 
               <button
-                onClick={closeModal}
+                onClick={() => {
+                  closeModal();
+                  navigate('/daftar-transaksi');
+                }}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 px-6 rounded-xl transition duration-200 ease-in-out transform hover:scale-105"
               >
                 Lihat Pesanan

@@ -26,7 +26,7 @@ export default function PesanLayanan() {
     { label: ">3", value: 3 },
     { label: ">2", value: 2 },
     { label: ">1", value: 1 },
-    { label: "Belum Ada Rating", value: "none" },
+    { label: "Belum Ada Rating", value: null },
   ];
 
   const [animals, setAnimals] = useState([]);
@@ -75,9 +75,10 @@ export default function PesanLayanan() {
         params.append('animal_ids', id);
       });
 
-      if (selectedRating) {
+      if (selectedRating !== null && selectedRating !== '') {
         params.append('rating', selectedRating);
       }
+
       const queryString = params.toString();
       const response = await BUYER_SERVICE.filterServices(queryString);
       setSellerServices(response.data);

@@ -22,11 +22,9 @@ export default function DaftarPesanan() {
         setIsLoading(false);
       }
     };
-
     fetchSellerOrders();
   }, []);
 
-  // Function to filter orders by status
   const getOrdersByStatus = (status) => {
     if (!sellerOrders.orders) return [];
     return sellerOrders.orders.filter(order => order.status === status);
@@ -48,10 +46,10 @@ export default function DaftarPesanan() {
   const handleCompleteOrder = async (orderId) => {
     try {
       const response = await SELLER_SERVICE.updateStatus({ order_id: orderId });
-
       if (response.status === "success") {
         const updatedOrders = await SELLER_SERVICE.sellerOrders();
         setSellerOrders(updatedOrders.data);
+        alert('Pesanan berhasil diselesaikan');
       } else {
         alert('Gagal menyelesaikan pesanan: ' + response.message);
       }

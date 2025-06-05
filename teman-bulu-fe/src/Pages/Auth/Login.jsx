@@ -23,6 +23,7 @@ export default function Login() {
       [id]: value,
     }));
   }
+
   const getUserRole = () => {
     try {
       const token = localStorage.getItem("token");
@@ -43,10 +44,13 @@ export default function Login() {
         email: loginAuth.email,
         password: loginAuth.password
       });
-
       localStorage.setItem('token', response.data.token);
+      await new Promise(resolve => setTimeout(resolve, 100));
       const role = getUserRole();
-      console.log('User role:', role);
+
+      // const token = localStorage.getItem("token");
+      // console.log(token);
+      // console.log('User role:', role);
 
       setShowSuccessModal(true);
       setShowErrorModal(false);
@@ -55,11 +59,12 @@ export default function Login() {
         setShowSuccessModal(false);
         if (role === 1) {
           navigate('/admin-data-buyer');
+        } else if (role === 2) {
+          navigate('/daftar-pesanan');
         } else {
           navigate('/landingpage');
         }
       }, 2000);
-
     } catch (error) {
       console.error("Login error:", error);
       setShowErrorModal(true);

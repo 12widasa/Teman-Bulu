@@ -10,9 +10,9 @@ export default function Sidebar({ children }) {
       <aside className="w-64 bg-gray-200 text-white flex flex-col justify-between py-6">
         <div>
           <div className="px-6 mb-8 flex gap-2 text-black">
-            <button className="mb-4 ">
+            {/* <button className="mb-4 ">
               <Menu strokeWidth={1.5} />
-            </button>
+            </button> */}
             <img src={LOGO} className='w-40' alt="" />
           </div>
 

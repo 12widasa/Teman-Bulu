@@ -10,6 +10,7 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
 
   const isTokenValid = (token) => {
     if (!token) return false;
@@ -40,16 +41,18 @@ export default function Header() {
 
       if (token && isTokenValid(token)) {
         setIsLoggedIn(true);
+        setUserRole(getUserRole());
       } else {
         if (token) {
           localStorage.removeItem("token");
         }
         setIsLoggedIn(false);
+        setUserRole(null);
       }
     };
-
     checkAuthStatus();
   }, []);
+
 
   const toggleProfileDropdown = () => {
     setIsProfileOpen(!isProfileOpen);
@@ -95,22 +98,27 @@ export default function Header() {
           {/* Navigation */}
           <nav className="flex">
             <ul className="flex space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-6 items-center">
-              <li className="items-center">
-                <Link
-                  to="/landingpage"
-                  className={`text-xs sm:text-sm md:text-base lg:text-lg ${currentPath === "/landingpage" ? "text-orange-500" : "text-gray-800"
-                    }`}
-                >
-                  Beranda
-                </Link>
-              </li>
+              {userRole !== 2 && (
+                <>
+                  <li className="items-center">
+                    <Link
+                      to="/landingpage"
+                      className={`text-xs sm:text-sm md:text-base lg:text-lg ${currentPath === "/landingpage" ? "text-orange-500" : "text-gray-800"}`}
+                    >
+                      Beranda
+                    </Link>
+                  </li>
 
-              <li className="items-center">
-                <Link to="/about" className={`text-xs sm:text-sm md:text-base lg:text-lg ${currentPath === "/about" ? "text-orange-500" : "text-gray-800"
-                  }`}>
-                  Tentang Kami
-                </Link>
-              </li>
+                  <li className="items-center">
+                    <Link
+                      to="/about"
+                      className={`text-xs sm:text-sm md:text-base lg:text-lg ${currentPath === "/about" ? "text-orange-500" : "text-gray-800"}`}
+                    >
+                      Tentang Kami
+                    </Link>
+                  </li>
+                </>
+              )}
 
               {/* Show these items only when not logged in */}
               {!isLoggedIn && (
@@ -156,7 +164,7 @@ export default function Header() {
               )}
 
               {/* Show these items only when logged in and token is valid */}
-              {isLoggedIn && (
+              {isLoggedIn && userRole === 3 && (
                 <>
                   <li className="items-center">
                     <Link to="/pesan-layanan" className={`text-xs sm:text-sm md:text-base lg:text-lg ${currentPath === "/pesan-layanan" || currentPath === "/detail-pesanan" ? "text-orange-500" : ""
@@ -199,6 +207,28 @@ export default function Header() {
                         </button>
                       </div>
                     )}
+                  </li>
+                </>
+              )}
+
+              {isLoggedIn && userRole === 2 && (
+                <>
+                  <li className="items-center">
+                    <Link to="/daftar-pesanan" className={`text-xs sm:text-sm md:text-base lg:text-lg ${currentPath === "/daftar-pesanan" ? "text-orange-500" : "text-gray-800"}`}>
+                      Daftar Pesanan
+                    </Link>
+                  </li>
+
+                  <li className="items-center">
+                    <Link to="/profile-seller" className={`text-xs sm:text-sm md:text-base lg:text-lg ${currentPath === "/profile-seller" ? "text-orange-500" : "text-gray-800"}`}>
+                      Profil
+                    </Link>
+                  </li>
+
+                  <li className="items-center">
+                    <button onClick={logout} className="text-xs sm:text-sm md:text-base lg:text-lg ">
+                      Keluar
+                    </button>
                   </li>
                 </>
               )}

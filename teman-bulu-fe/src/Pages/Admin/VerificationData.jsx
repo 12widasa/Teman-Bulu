@@ -21,39 +21,44 @@ export default function VerificationData() {
     setSelectedId(row.id);
   }
 
-  const handleAccept = async () => {
-    e.stopPropagation();
+  const fetchData = async () => {
     try {
-      const response = await ADMIN_DATA_SERVICE.verifyUser({ id: selectedId });
-      setSelectedId(null);
-      return response.data;
+      const response = await ADMIN_DATA_SERVICE.getUser({ role_id: 2 });
+      setAdminDataSeller(response.data);
     } catch (error) {
       console.log("Error fetching data from API:", error.response?.data || error.message);
     }
-  }
-
-  const handleDecline = async () => {
-    e.stopPropagation();
-    try {
-      const response = await ADMIN_DATA_SERVICE.declineUser({ id: selectedId });
-      setSelectedId(null);
-      return response.data;
-    } catch (error) {
-      console.log("Error fetching data from API:", error.response?.data || error.message);
-    }
-  }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await ADMIN_DATA_SERVICE.getUser({ role_id: 2 });
-        setAdminDataSeller(response.data);
-      } catch (error) {
-        console.log("Error fetching data from API:", error.response?.data || error.message);
-      }
-    }
     fetchData();
-  }, [])
+  }, []);
+
+  const handleAccept = async (e) => {
+    e.stopPropagation();
+    try {
+      const response = await ADMIN_DATA_SERVICE.verifyUser({ seller_id: selectedId });
+      setSelectedId(null);
+      setShowAcceptModal(false);
+      await fetchData();
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching data from API:", error.response?.data || error.message);
+    }
+  };
+
+  const handleDecline = async (e) => {
+    e.stopPropagation();
+    try {
+      const response = await ADMIN_DATA_SERVICE.declineUser({ seller_id: selectedId });
+      setSelectedId(null);
+      setShowDeclineModal(false);
+      await fetchData();
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching data from API:", error.response?.data || error.message);
+    }
+  };
 
   const actionColumn = {
     name: 'Actions',
@@ -66,8 +71,8 @@ export default function VerificationData() {
 
       return (
         <div className='flex gap-4'>
-          <div className='flex rounded-lg bg-[#5EFF91] cursor-pointer py-2 px-4'>
-            <button onClick={(e) => { e.stopPropagation(); confirmAccept(row) }} className="text-slate-400 hover:text-slate-500 rounded-full">
+          <div className='flex rounded-lg bg-[#5EFF91] cursor-pointer'>
+            <button onClick={(e) => { e.stopPropagation(); confirmAccept(row) }} className="text-slate-400 py-2 px-4 hover:text-slate-500 rounded-full">
               <div className='flex justify-center items-center text-white gap-1'>
                 <div className='p-[1px] text-[#5EFF91] rounded-full bg-white'>
                   <Check size={14} />
@@ -77,8 +82,8 @@ export default function VerificationData() {
             </button>
           </div>
 
-          <div className='flex rounded-lg bg-[#FF5E5E] cursor-pointer py-2 px-4'>
-            <button onClick={(e) => { e.stopPropagation(); confirmDecline(row) }} className="text-slate-400 hover:text-slate-500 rounded-full">
+          <div className='flex rounded-lg bg-[#FF5E5E] cursor-pointer'>
+            <button onClick={(e) => { e.stopPropagation(); confirmDecline(row) }} className="text-slate-400 py-2 px-4 hover:text-slate-500 rounded-full">
               <div className='flex justify-center items-center text-white gap-1'>
                 <div className='p-[1px] text-white'>
                   <Trash size={14} />
@@ -107,7 +112,7 @@ export default function VerificationData() {
             <h2 className="text-lg font-semibold mb-4">Terima Pengajuan Akun Ini?</h2>
             <div className='space-x-4 flex justify-around'>
               <button onClick={handleAccept} className='border w-20 rounded-md border-[#EF7800] text-[#EF7800]'><span className='text-sm'>Ya</span></button>
-              <button className='border w-20 rounded-md border-[#EF7800] bg-[#EF7800] text-[#ffffff]'><span className='text-sm'>Tidak</span></button>
+              <button onClick={() => setShowAcceptModal(false)} className='border w-20 rounded-md border-[#EF7800] bg-[#EF7800] text-[#ffffff]'><span className='text-sm'>Tidak</span></button>
             </div>
           </div>
         </div>
@@ -120,7 +125,7 @@ export default function VerificationData() {
             <h2 className="text-lg font-semibold mb-4">Tolak Pengajuan Akun Ini?</h2>
             <div className='space-x-4 flex justify-around'>
               <button onClick={handleDecline} className='border w-20 rounded-md border-[#EF7800] text-[#EF7800]'><span className='text-sm'>Ya</span></button>
-              <button className='border w-20 rounded-md border-[#EF7800] bg-[#EF7800] text-[#ffffff]'><span className='text-sm'>Tidak</span></button>
+              <button onClick={() => setShowDeclineModal(false)} className='border w-20 rounded-md border-[#EF7800] bg-[#EF7800] text-[#ffffff]'><span className='text-sm'>Tidak</span></button>
             </div>
           </div>
         </div>

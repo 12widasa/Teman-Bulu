@@ -16,7 +16,12 @@ export const tableColumnBuyer = [
   },
 ];
 
-export  const tableColumnSeller = [
+export const tableColumnSeller = [
+  {
+    name: "ID",
+    selector: row => row.id,
+    omit: true,
+  },
   {
     name: 'Nama Lengkap',
     selector: row => row.full_name,

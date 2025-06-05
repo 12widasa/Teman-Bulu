@@ -54,6 +54,17 @@ export default function DetailPesanan() {
     return serviceName?.includes('penitipan');
   };
 
+  const isAlamatDisembunyikan = () => {
+    if (!selectedPaket) return false;
+    const selectedService = services.find(service => service.id == selectedPaket);
+    const serviceName = selectedService?.skill_name.toLowerCase();
+
+    return serviceName?.includes('penitipan') ||
+      serviceName?.includes('grooming di tempat') ||
+      (serviceName?.includes('grooming') && serviceName?.includes('penitipan'));
+  };
+
+
   const totalHari = isPerluTanggalRange()
     ? dayjs(endDate).diff(dayjs(startDate), "day") + 1
     : 1;
@@ -80,7 +91,7 @@ export default function DetailPesanan() {
       servicesId: selectedService?.id,
       start_dt: startEpoch,
       end_dt: endEpoch,
-      address: address,
+      address: isAlamatDisembunyikan() ? "Di Tempat" : address,
       animalName: selectedService?.animal_name,
       paket: selectedService?.skill_name,
       price: harga(),
@@ -111,6 +122,11 @@ export default function DetailPesanan() {
   const validateForm = () => {
     if (!selectedAnimal || !selectedPaket || !startDate) {
       alert('Mohon lengkapi semua field yang diperlukan');
+      return false;
+    }
+
+    if (!isAlamatDisembunyikan() && !address.trim()) {
+      alert('Mohon masukkan alamat');
       return false;
     }
 
@@ -210,17 +226,19 @@ export default function DetailPesanan() {
             )}
           </div>
 
-          <div>
-            <p>Alamat</p>
-            <textarea
-              name="alamat"
-              id="address"
-              className='border w-64 rounded-md p-2'
-              placeholder='Masukkan Alamat Anda'
-              onChange={(e) => setAddress(e.target.value)}
-              defaultValue={detailService?.buyer?.address || ''}
-            ></textarea>
-          </div>
+          {!isAlamatDisembunyikan() && (
+            <div>
+              <p>Alamat</p>
+              <textarea
+                name="alamat"
+                id="address"
+                className='border w-64 rounded-md p-2'
+                placeholder='Masukkan Alamat Anda'
+                onChange={(e) => setAddress(e.target.value)}
+                defaultValue={detailService?.buyer?.address || ''}
+              ></textarea>
+            </div>
+          )}
 
           <div>
             <p className="font-semibold">Pilih Tanggal</p>

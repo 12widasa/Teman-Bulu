@@ -143,9 +143,10 @@ export default function ProfileSeller() {
       console.log(updateProfileSeller);
       console.log(animalIds);
       await SELLER_SERVICE.updateProfileSeller({ ...updateProfileSeller, animal_ids: animalIds });
+      alert("Berhasil Update Profile");
       setIsSubmitting(false);
-      setShowModal(true);
     } catch (error) {
+      alert("Gagal Update Profile");
       setIsSubmitting(false);
       console.log(error);
     }

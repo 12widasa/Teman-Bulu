@@ -1,17 +1,31 @@
 import { dateFormatWithTime } from '../Utils/dateFormat'
 import axios from 'axios'
 
-const apiToken = localStorage.getItem("token");
+// const apiToken = localStorage.getItem("token");
 
 const apiInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    Authorization: `Bearer ${apiToken}`,
+    // Authorization: `Bearer ${apiToken}`,
   },
   timeout: 10000,
 });
+
+apiInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 
 const handleApiError = (error, customMessage = "API Error") => {
   const errorDetails = {

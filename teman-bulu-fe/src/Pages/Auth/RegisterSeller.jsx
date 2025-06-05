@@ -141,12 +141,12 @@ export default function RegisterSeller() {
                 </div>
 
                 <div className='flex justify-between space-x-4'>
-                  <div className="mb-6">
+                  <div className="mb-4 w-full">
                     <label className="block text-gray-700 mb-2">Email</label>
                     <input required onChange={handleChange} type="email" id="email" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
                   </div>
 
-                  <div className="mb-6">
+                  <div className="mb-4 w-full">
                     <label className="block text-gray-700 mb-2">Password</label>
                     <input required placeholder='***' onChange={handleChange} type="password" id="password" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
                   </div>
@@ -162,26 +162,29 @@ export default function RegisterSeller() {
                       onClick={() => setIsOpen(!isOpen)}
                       className="w-full min-h-[42px] px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-200 cursor-pointer bg-white flex flex-wrap items-center gap-1"
                     >
-                      {selectedAnimals.length === 0 ? (
+                      {!selectedAnimals || selectedAnimals.length === 0 ? (
                         <span className="text-gray-500">Pilih Hewan</span>
                       ) : (
-                        selectedAnimals.map(animal => (
-                          <span
-                            key={animal.id}
-                            className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm"
-                          >
-                            {animal.name}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeAnimal(animal.id);
-                              }}
-                              className="hover:bg-blue-200 rounded-full p-0.5"
+                        selectedAnimals
+                          .filter(animal => animal && animal.id && animal.name) // Filter out invalid entries
+                          .map(animal => (
+                            <span
+                              key={animal.id}
+                              className="inline-flex items-center gap-1 bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm"
                             >
-                              <X size={12} />
-                            </button>
-                          </span>
-                        ))
+                              {animal.name}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeAnimal(animal.id);
+                                }}
+                                className="hover:bg-blue-200 rounded-full p-0.5"
+                                type="button"
+                              >
+                                <X size={12} />
+                              </button>
+                            </span>
+                          ))
                       )}
 
                       <ChevronDown
@@ -192,25 +195,34 @@ export default function RegisterSeller() {
 
                     {isOpen && (
                       <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                        {animals.map(animal => {
-                          const isSelected = selectedAnimals.some(item => item.id === animal.id);
-                          return (
-                            <div
-                              key={animal.id}
-                              onClick={() => handleAnimalSelect(animal)}
-                              className={`px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center gap-2 ${isSelected ? 'bg-blue-50 text-blue-700' : ''
-                                }`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={() => { }}
-                                className="pointer-events-none"
-                              />
-                              {animal.name}
-                            </div>
-                          );
-                        })}
+                        {!animals || animals.length === 0 ? (
+                          <div className="px-3 py-2 text-gray-500 text-center">
+                            Tidak ada data hewan tersedia
+                          </div>
+                        ) : (
+                          animals
+                            .filter(animal => animal && animal.id && animal.name)
+                            .map(animal => {
+                              const isSelected = selectedAnimals?.some(item => item?.id === animal.id);
+                              return (
+                                <div
+                                  key={animal.id}
+                                  onClick={() => handleAnimalSelect(animal)}
+                                  className={`px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center gap-2 ${isSelected ? 'bg-blue-50 text-blue-700' : ''
+                                    }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    onChange={() => { }} // Keep empty but add comment
+                                    className="pointer-events-none"
+                                    readOnly
+                                  />
+                                  {animal.name}
+                                </div>
+                              );
+                            })
+                        )}
                       </div>
                     )}
                   </div>
@@ -237,7 +249,6 @@ export default function RegisterSeller() {
                     id="profile"
                     onChange={handleChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  // onChange={handleFileChange}
                   />
                   <span className="bg-gray-500 cursor-pointer text-white px-4 py-2 whitespace-nowrap">Choose</span>
                   <span className="flex-grow bg-white px-4 py-2 text-gray-600 truncate">{filesName.profile || 'Pilih Profile'}</span>

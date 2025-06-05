@@ -23,20 +23,20 @@ export default function RegisterBuyer() {
     }));
   }
 
-  const handleLoginSubmit = async (e) => {
+  const handleRegisterBuyer = async (e) => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
       const response = await AUTH_SERVICE.registerBuyer({ full_name: registerBuyerAuth.full_name, email: registerBuyerAuth.email, password: registerBuyerAuth.password })
       setIsSubmitting(false);
-      setShowModal(true);
+      alert("Berhasil Register silahkan Login");
+      // setShowModal(true);
     } catch (error) {
       setIsSubmitting(false);
       console.log(error);
       const errorMessage =
         error?.response?.data?.message || 'Jangan Salah Mbok an.';
       alert(errorMessage);
-      // console.error('Error detail:', error);
     }
   };
 
@@ -48,7 +48,7 @@ export default function RegisterBuyer() {
           <div className="w-full md:w-1/2">
             <div className="pr-8">
               <h2 className="text-2xl font-bold mb-4">Daftar</h2>
-              <form onSubmit={handleLoginSubmit}>
+              <form onSubmit={handleRegisterBuyer}>
                 <div className="mb-4">
                   <label className="block text-gray-700 mb-2">Nama Lengkap</label>
                   <input required type="text" onChange={handleChange} id="full_name" value={registerBuyerAuth.full_name} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
@@ -79,15 +79,14 @@ export default function RegisterBuyer() {
                   )}
                 </button>
               </form>
-              <ModalOpen
+              {/* <ModalOpen
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
                 link="http://wa.me/..."
-              />
+              /> */}
             </div>
           </div>
 
-          {/* <!-- Image Placeholder --> */}
           <div className="w-full md:w-1/2 mt-8 md:mt-0">
             <div className="h-72 md:h-full rounded justify-center relative">
               <img src={Image} alt="" />
@@ -96,7 +95,6 @@ export default function RegisterBuyer() {
         </div>
       </main>
 
-      {/* <!-- Footer --> */}
       <Footer />
     </div>
   )

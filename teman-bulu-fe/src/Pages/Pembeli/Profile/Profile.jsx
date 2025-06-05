@@ -28,8 +28,10 @@ export default function ProfileBuyer() {
     try {
       setIsSubmitting(true);
       await BUYER_SERVICE.updateProfileBuyer(updateProfileSeller);
+      alert("Berhasil Update Profile")
       setIsSubmitting(false);
     } catch (error) {
+      alert("Gagal Update Profile");
       setIsSubmitting(false);
       console.log(error);
     }

@@ -13,7 +13,7 @@ import HamsterImage from './../../assets/hamster1.jpg';
 import CSImage2 from './../../assets/cs2.jpg';
 import Call from './../../assets/emergency-call.png';
 import Footer from './../../Component/Auth/Footer';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BUYER_SERVICE } from '../../Services/Buyer';
 
 export default function LandingPage() {
@@ -24,6 +24,50 @@ export default function LandingPage() {
     CatImage2,
   ];
   const [sellerServices, setSellerServices] = useState([]);
+  const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  const isTokenValid = (token) => {
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const currentTime = Date.now() / 1000;
+      return payload.exp > currentTime;
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const getUserRole = () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role_id;
+    } catch (error) {
+      console.error("Error getting user role:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const token = localStorage.getItem("token");
+
+      if (token && isTokenValid(token)) {
+        setIsLoggedIn(true);
+        setUserRole(getUserRole());
+      } else {
+        if (token) {
+          localStorage.removeItem("token");
+        }
+        setIsLoggedIn(false);
+        setUserRole(null);
+      }
+    };
+    checkAuthStatus();
+  }, []);
 
   const [sliderRef, slider] = useKeenSlider({
     loop: true,
@@ -42,6 +86,17 @@ export default function LandingPage() {
     }
     fetchSellerServices();
   }, [])
+
+  const handleClick = () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+    } else if (userRole === 3) {
+      navigate('/pesan-layanan');
+    } else {
+      alert('Akses hanya untuk pembeli (role 3)');
+    }
+  };
+
   return (
     <div>
       <Header />
@@ -164,14 +219,14 @@ export default function LandingPage() {
             </div>
 
             <div className='flex justify-center mt-8'>
-              <Link className='w-full' to="/pesan-layanan">
-                <button
-                  type="submit"
-                  className="w-full bg-[#Ef7800] text-white py-2 px-4 rounded flex justify-center items-center gap-2"
-                > Lihat Selengkapnya
-                </button>
-              </Link>
+              <button
+                type="submit"
+                onClick={handleClick}
+                className="w-full bg-[#Ef7800] text-white py-2 px-4 rounded flex justify-center items-center gap-2"
+              > Lihat Selengkapnya
+              </button>
             </div>
+
           </div>
         </section>
 

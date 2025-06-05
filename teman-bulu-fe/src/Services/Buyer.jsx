@@ -1,17 +1,31 @@
 import { dateFormatWithTime } from '../Utils/dateFormat'
 import axios from 'axios'
 
-const apiToken = localStorage.getItem("token");
+// const apiToken = localStorage.getItem("token");
 
 const apiInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    Authorization: `Bearer ${apiToken}`,
+    // Authorization: `Bearer ${apiToken}`,
   },
   timeout: 10000,
 });
+
+apiInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 
 const handleApiError = (error, customMessage = "API Error") => {
   const errorDetails = {
@@ -36,6 +50,7 @@ const ENDPOINTS = {
   BUYER_ORDERS: "/buyerOrders",
   PAY_ORDER: "/payOrder",
   RATE_ORDER: "/rateOrder",
+  UPDATE_PROFILE_BUYER: "/updateProfileBuyer",
 }
 
 export const BUYER_SERVICE = {
