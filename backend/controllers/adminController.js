@@ -98,7 +98,7 @@ const rejectSeller = async (req, res) => {
   const logHeader = "apiReject";
   logger.info(`${logHeader}`, req.body);
 
-  const { id: seller_id } = req.body;
+  const { seller_id } = req.body;
 
   try {
     logger.info(`${logHeader}: trying to reject`);
