@@ -4,7 +4,6 @@ const buyerController = require('../controllers/buyerController');
 const userMiddleware = require('../middlewares/userMiddleware');
 const buyerMiddleware = require('../middlewares/buyerMiddleware');
 
-router.get('/sellerServices', userMiddleware.verifyToken, buyerMiddleware.validateBuyer, buyerController.getSellerServices);
 router.get('/seller/:id', userMiddleware.verifyToken, buyerMiddleware.validateBuyer, buyerController.getSeller);
 router.get('/buyerOrders', userMiddleware.verifyToken, buyerMiddleware.validateBuyer, buyerController.buyerOrders);
 

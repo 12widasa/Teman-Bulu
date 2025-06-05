@@ -360,10 +360,66 @@ const getAnimals = async (req, res) => {
   }
 };
 
+const getSellerServices = async (req, res) => {
+  const logHeader = "apiSellerServices";
+  logger.info(`${logHeader}`, req.query);
+
+  const { animal_ids, rating } = req.query;
+
+  try {
+    logger.info(`${logHeader}: trying to get seller services`);
+
+    const queryParams = [];
+    let whereClause = `WHERE user.role_id = 2 AND user.status = true`;
+
+    if (animal_ids) {
+      whereClause += ` AND service.animal_id IN (?)`;
+      queryParams.push(animal_ids);
+    }
+
+    let havingClause = "";
+    if (rating) {
+      havingClause = `HAVING average_rating >= ?`;
+      queryParams.push(parseFloat(rating));
+    }
+
+    const [sellerServices] = await pool.query(
+      `
+        SELECT
+          user.id,
+          user.full_name,
+          user.profile,
+          user.description,
+          ROUND(AVG(\`order\`.rating), 2) AS average_rating
+        FROM user 
+        INNER JOIN service ON user.id = service.seller_id 
+        LEFT JOIN \`order\` ON service.id = \`order\`.service_id 
+        ${whereClause}
+        GROUP BY user.full_name
+        ${havingClause}
+      `,
+      queryParams
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "Get seller services successful",
+      data: sellerServices,
+    });
+  } catch (err) {
+    logger.error(`${logHeader}: ${err}`);
+    return res.status(500).json({
+      status: "failed",
+      message: "Server error",
+    });
+  }
+};
+
 module.exports = {
   registerSeller,
   registerAdmin,
   registerBuyer,
   login,
-  getAnimals
+  getAnimals,
+  getSellerServices
 };
