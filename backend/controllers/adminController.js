@@ -40,7 +40,7 @@ const getUsers = async (req, res) => {
 
   try {
     logger.info(`${logHeader}: trying to get users data`);
-    const [rows] = await pool.query(`SELECT * FROM user WHERE role_id != 1`);
+    const [rows] = await pool.query(`SELECT * FROM user WHERE role_id = ${role_id}`);
 
     return res.status(200).json({
       status: "success",
