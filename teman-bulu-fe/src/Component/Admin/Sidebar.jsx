@@ -1,9 +1,14 @@
 import { Check, Link, LogOut, Menu, User } from 'lucide-react';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import LOGO from '../../assets/logo.png';
 
 export default function Sidebar({ children }) {
+  const navigate = useNavigate();
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/landingpage");
+  };
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
@@ -65,7 +70,7 @@ export default function Sidebar({ children }) {
 
         {/* Logout button */}
         <div className="px-6">
-          <button className="flex items-center text-[#EF7800] px-4 py-2 rounded w-full">
+          <button onClick={logout} className="flex items-center text-[#EF7800] px-4 py-2 rounded w-full">
             <div className="w-6 h-6 text-[#EF7800] mr-4 flex items-center justify-center rounded"><LogOut /></div>
             <span className="font-bold">Keluar Akun</span>
           </button>

@@ -15,6 +15,7 @@ export default function PesanLayanan() {
   const [selectedRating, setSelectedRating] = useState('');
   const [sellerServices, setSellerServices] = useState([]);
   const navigate = useNavigate();
+  const [searchName, setSearchName] = useState('');
 
   const handleServiceClick = (serviceId) => {
     navigate(`/detail-pesanan/${serviceId}`);
@@ -79,6 +80,10 @@ export default function PesanLayanan() {
         params.append('rating', selectedRating);
       }
 
+      if (searchName.trim() !== '') {
+        params.append('q', searchName.trim());
+      }
+
       const queryString = params.toString();
       const response = await BUYER_SERVICE.filterServices(queryString);
       setSellerServices(response.data);
@@ -97,6 +102,8 @@ export default function PesanLayanan() {
             <div className="relative w-full max-w-md">
               <input
                 type="text"
+                value={searchName}
+                onChange={(e) => setSearchName(e.target.value)}
                 placeholder="Cari berdasarkan nama penyedia jasa..."
                 className="w-full pr-10 pl-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#EF7800]"
               />
