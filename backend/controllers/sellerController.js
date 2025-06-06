@@ -110,6 +110,79 @@ const updateProfileSeller = async (req, res) => {
       );
     }
 
+    const skillIds = [1, 2, 3, 4];
+    let insertServices = "";
+
+    let skillIdCounter = 0;
+    let animalIdCounter = 0;
+    skillIds.forEach((skillId) => {
+      skillIdCounter++;
+      req.body.animal_ids.map((animalId) => {
+        animalIdCounter++;
+        let price = 0;
+        if (skillId === 1) {
+          if (animalId === 1) {
+            price = 90000;
+          } else if (animalId === 2) {
+            price = 80000;
+          } else if (animalId === 3) {
+            price = 65000;
+          } else if (animalId === 4) {
+            price = 130000;
+          }
+        } else if (skillId === 2) {
+          if (animalId === 1) {
+            price = 120000;
+          } else if (animalId === 2) {
+            price = 100000;
+          } else if (animalId === 3) {
+            price = 80000;
+          } else if (animalId === 4) {
+            price = 160000;
+          }
+        } else if (skillId === 3) {
+          if (animalId === 1) {
+            price = 65000;
+          } else if (animalId === 2) {
+            price = 70000;
+          } else if (animalId === 3) {
+            price = 45000;
+          } else if (animalId === 4) {
+            price = 100000;
+          }
+        } else if (skillId === 4) {
+          if (animalId === 1) {
+            price = 55000;
+          } else if (animalId === 2) {
+            price = 60000;
+          } else if (animalId === 3) {
+            price = 40000;
+          } else if (animalId === 4) {
+            price = 90000;
+          }
+        }
+
+        if (
+          skillIdCounter === skillIds.length &&
+          animalIdCounter === skillIds.length * req.body.animal_ids.length
+        ) {
+          insertServices += `(${skillId}, ${animalId}, ${req.user.id}, ${price});`;
+        } else {
+          insertServices += `(${skillId}, ${animalId}, ${req.user.id}, ${price}),`;
+        }
+      });
+    });
+
+    const [insertSellerServices] = await pool.query(
+      `INSERT INTO service (skill_id, animal_id, seller_id, price) VALUES ${insertServices};`
+    );
+
+    //delete previous seller's services
+    const [deleteSellerServices] = await pool.query(
+      `DELETE FROM service WHERE seller_id = ? AND animal_id NOT IN (?);`,
+      [req.user.id, animal_ids]
+    )
+
     return res.status(201).json({
       status: "success",
       message: "Profile updated",

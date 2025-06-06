@@ -364,7 +364,7 @@ const getSellerServices = async (req, res) => {
   const logHeader = "apiSellerServices";
   logger.info(`${logHeader}`, req.query);
 
-  const { animal_ids, rating } = req.query;
+  const { animal_ids, rating, q } = req.query;
 
   try {
     logger.info(`${logHeader}: trying to get seller services`);
@@ -375,6 +375,11 @@ const getSellerServices = async (req, res) => {
     if (animal_ids) {
       whereClause += ` AND service.animal_id IN (?)`;
       queryParams.push(animal_ids);
+    }
+    
+    if (q) {
+      whereClause += ` AND user.full_name LIKE ?`;
+      queryParams.push(`%${q}%`);
     }
 
     let havingClause = "";
