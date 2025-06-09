@@ -33,31 +33,6 @@ const pool = mysql.createPool({
 });
 const bcrypt = require("bcryptjs");
 
-const getProfile = async (req, res) => {
-  const logHeader = 'apiGetProfile';
-  logger.info(`${logHeader}`);
-
-  try {
-    logger.info(`${logHeader}: trying to get seller profile`);
-    
-    const [result] = await pool.query(
-      `SELECT * FROM user WHERE id = ${req.user.id}`
-    )
-
-    return res.status(200).json({
-      status: "success",
-      message: 'Get profile successful',
-      data: result
-    })
-  } catch (err) {
-    logger.error(`${logHeader}: ${err}`);
-    return res.status(500).json({
-      status: 'failed',
-      message: 'Server error'
-    })
-  }
-}
-
 const updateProfileSeller = async (req, res) => {
   const logHeader = "apiUpdateProfileSeller";
   logger.info(`${logHeader}`, req.body);
@@ -365,6 +340,5 @@ module.exports = {
   updateStatus,
   getServices,
   getSellerOrders,
-  changeStatus,
-  getProfile
+  changeStatus
 };

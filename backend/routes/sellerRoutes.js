@@ -6,7 +6,6 @@ const userMiddleware =  require('../middlewares/userMiddleware');
 
 router.get('/services', userMiddleware.verifyToken, sellerMiddleware.validateSeller, sellerController.getServices);
 router.get('/sellerOrders', userMiddleware.verifyToken, sellerMiddleware.validateSeller, sellerController.getSellerOrders);
-router.get('/getProfile', userMiddleware.verifyToken, sellerMiddleware.validateSeller, sellerController.getProfile);
 
 router.post('/service', userMiddleware.verifyToken, sellerMiddleware.validateSeller, userMiddleware.validateBody(["skill_id", "animal_id", "price"]), sellerController.addService);
 
