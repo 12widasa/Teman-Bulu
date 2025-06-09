@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Header from '../../../Component/Auth/Header';
 import Footer from '../../../Component/Auth/Footer';
 import Image from '../../../assets/kuceng.jpg';
@@ -26,12 +26,11 @@ export default function ProfileBuyer() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await BUYER_SERVICE.getProfile();
+        const response = await BUYER_SERVICE.updateProfileBuyer();
 
         setAnimals(animalRes.data);
         if (response.data) {
           const profileData = response.data[0];
-          // console.log(profileData);
           setUpdateProfileBuyer({
             full_name: profileData.full_name || '',
             email: profileData.email || '',

@@ -50,7 +50,7 @@ const ENDPOINTS = {
   BUYER_ORDERS: "/buyerOrders",
   PAY_ORDER: "/payOrder",
   RATE_ORDER: "/rateOrder",
-  UPDATE_PROFILE_BUYER: "/updateProfileBuyer",
+  UPDATE_PROFILE_BUYER: "/getProfile",
 }
 
 export const BUYER_SERVICE = {
@@ -117,5 +117,13 @@ export const BUYER_SERVICE = {
     } catch (error) {
       handleApiError(error, "Error Update Profile Buyer");
     }
-  }
+  },
+  getProfileBuyer: async () => {
+    try {
+      const response = await apiInstance.get(ENDPOINTS.UPDATE_PROFILE_BUYER);
+      return response.data;
+    } catch (error) {
+      handleApiError(error, "Error Update Profile Buyer");
+    }
+  },
 }
