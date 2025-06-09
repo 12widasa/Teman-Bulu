@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ModalOpen({ isOpen, onClose, link }) {
+export default function ModalSeller({ isOpen, onClose, link }) {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

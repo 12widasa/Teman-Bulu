@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import ModalOpen from '../../Component/Auth/ModalOpen';
 import Header from './../../Component/Auth/Header';
 import Footer from './../../Component/Auth/Footer';
 import Image from './../../assets/auth-image.jpg';
 import { ChevronDown, CircleAlert, Loader2, X } from 'lucide-react';
 import { AUTH_SERVICE } from '../../Services/Auth';
+import ModalSeller from '../../Component/Auth/ModalSeller';
 
 export default function RegisterSeller() {
   const [showModal, setShowModal] = useState(false);
@@ -108,12 +108,11 @@ export default function RegisterSeller() {
     try {
       setIsSubmitting(true);
       const animalIds = selectedAnimals.map(animal => animal.id);
-      console.log(registerSellerAuth);
-      console.log(animalIds);
       await AUTH_SERVICE.registerSeller({ ...registerSellerAuth, animal_ids: animalIds });
       setIsSubmitting(false);
       setShowModal(true);
     } catch (error) {
+      alert("Terjadi Error")
       setIsSubmitting(false);
       console.log(error);
     }
@@ -301,11 +300,10 @@ export default function RegisterSeller() {
                   </div>
                 </div>
               </form>
-
-              <ModalOpen
+              <ModalSeller
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                link="http://wa.me/..."
+                link="https://wa.me/+6285642032487"
               />
             </div>
           </div>

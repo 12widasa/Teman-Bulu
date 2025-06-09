@@ -3,17 +3,17 @@ import { Loader2 } from 'lucide-react';
 import Header from './../../Component/Auth/Header';
 import Footer from './../../Component/Auth/Footer';
 import Image from './../../assets/auth-image.jpg';
-import ModalOpen from '../../Component/Auth/ModalOpen';
 import { AUTH_SERVICE } from '../../Services/Auth';
+import ModalBuyer from './../../Component/Auth/ModalBuyer';
 
 export default function RegisterBuyer() {
-  const [showModal, setShowModal] = useState(false);
   const [registerBuyerAuth, setRegisterBuyerAuth] = useState({
     full_name: '',
     email: '',
     password: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleChange = async (e) => {
     const { id, value } = e.target;
@@ -27,12 +27,13 @@ export default function RegisterBuyer() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const response = await AUTH_SERVICE.registerBuyer({ full_name: registerBuyerAuth.full_name, email: registerBuyerAuth.email, password: registerBuyerAuth.password })
+      await AUTH_SERVICE.registerBuyer({ full_name: registerBuyerAuth.full_name, email: registerBuyerAuth.email, password: registerBuyerAuth.password })
       setIsSubmitting(false);
+      setShowModal(true);
       alert("Berhasil Register silahkan Login");
-      // setShowModal(true);
     } catch (error) {
       setIsSubmitting(false);
+      setShowModal(true);
       console.log(error);
       const errorMessage =
         error?.response?.data?.message || 'Jangan Salah Mbok an.';
@@ -79,11 +80,10 @@ export default function RegisterBuyer() {
                   )}
                 </button>
               </form>
-              {/* <ModalOpen
+              <ModalBuyer
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                link="http://wa.me/..."
-              /> */}
+              />
             </div>
           </div>
 
@@ -94,7 +94,6 @@ export default function RegisterBuyer() {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   )

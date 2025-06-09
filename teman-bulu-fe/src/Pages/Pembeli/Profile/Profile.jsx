@@ -3,11 +3,11 @@ import Header from '../../../Component/Auth/Header';
 import Footer from '../../../Component/Auth/Footer';
 import Image from '../../../assets/kuceng.jpg';
 import { Loader2 } from 'lucide-react';
-import { BUYER_SERVICE } from '../../../Services/Buyer';
+import { BUYER_SERVICE } from './../../../Services/Buyer';
 
 export default function ProfileBuyer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [updateProfileSeller, setUpdateProfileSeller] = useState({
+  const [updateProfileBuyer, setUpdateProfileBuyer] = useState({
     full_name: '',
     email: '',
     password: '',
@@ -17,17 +17,42 @@ export default function ProfileBuyer() {
 
   const handleChange = async (e) => {
     const { id, value } = e.target;
-    setUpdateProfileSeller((prev) => ({
+    setUpdateProfileBuyer((prev) => ({
       ...prev,
       [id]: value,
     }));
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await BUYER_SERVICE.getProfile();
+
+        setAnimals(animalRes.data);
+        if (response.data) {
+          const profileData = response.data[0];
+          // console.log(profileData);
+          setUpdateProfileBuyer({
+            full_name: profileData.full_name || '',
+            email: profileData.email || '',
+            birth: profileData.birth || '',
+            phone_number: profileData.phone_number || '',
+            address: profileData.address || '',
+          });
+        }
+      } catch (err) {
+        console.error('Gagal ambil data:', err);
+      }
+    }
+
+    fetchData();
+  }, []);
+
   const handleUpdateProfileBuyer = async (e) => {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      await BUYER_SERVICE.updateProfileBuyer(updateProfileSeller);
+      await BUYER_SERVICE.updateProfileBuyer(updateProfileBuyer);
       alert("Berhasil Update Profile")
       setIsSubmitting(false);
     } catch (error) {
@@ -49,12 +74,12 @@ export default function ProfileBuyer() {
                   <div className='flex col-span-12 grid-cols-2 justify-between space-x-4'>
                     <div className="mb-4 w-full col-span-1">
                       <label className="block text-gray-700 mb-2">Nama Lengkap</label>
-                      <input required placeholder='John Doe' onChange={handleChange} type="text" id="full_name" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
+                      <input required placeholder='John Doe' onChange={handleChange} value={updateProfileBuyer.full_name} type="text" id="full_name" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
                     </div>
 
                     <div className="mb-4 w-full col-span-1">
                       <label className="block text-gray-700 mb-2">Email</label>
-                      <input required placeholder='JaneDoe@gmail.com' onChange={handleChange} type="email" id="email" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
+                      <input required placeholder='JaneDoe@gmail.com' onChange={handleChange} value={updateProfileBuyer.email} type="email" id="email" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
                     </div>
                   </div>
 
@@ -65,12 +90,12 @@ export default function ProfileBuyer() {
 
                   <div className="mb-6 col-span-12">
                     <label className="block text-gray-700 mb-2">No Hp</label>
-                    <input required placeholder='0812***' onChange={handleChange} type="text" id="phone_number" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
+                    <input required placeholder='0812***' onChange={handleChange} value={updateProfileBuyer.phone_number} type="text" id="phone_number" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
                   </div>
 
                   <div className="mb-6 col-span-12">
                     <label className="block text-gray-700 mb-2">Alamat</label>
-                    <input required placeholder='Serang' onChange={handleChange} type="text" id="address" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
+                    <input required placeholder='Serang' onChange={handleChange} type="text" id="address" value={updateProfileBuyer.address} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"></input>
                   </div>
 
                   <button

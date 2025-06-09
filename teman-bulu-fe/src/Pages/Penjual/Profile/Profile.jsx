@@ -49,7 +49,6 @@ export default function ProfileSeller() {
   const handleChange = async (e) => {
     const { id, files, type, value } = e.target;
 
-    // Untuk input file
     if (type === 'file') {
       const file = files[0];
       if (file) {
@@ -79,7 +78,6 @@ export default function ProfileSeller() {
   const handleAnimalSelect = (animal) => {
     setSelectedAnimals(prev => {
       const isAlreadySelected = prev.some(item => item.id === animal.id);
-
       if (isAlreadySelected) {
         return prev.filter(item => item.id !== animal.id);
       } else {
@@ -102,25 +100,22 @@ export default function ProfileSeller() {
 
         setAnimals(animalRes.data);
 
-        console.log(profileRes.data[0].full_name);
-
         if (profileRes.data) {
-          const profileData = profileRes.data;
+          const profileData = profileRes.data[0];
           console.log(profileData);
           setUpdateProfileSeller({
-            full_name: profileData[0].full_name || '',
-            email: profileData[0].email || '',
-            birth: profileData[0].birth || '',
-            phone_number: profileData[0].phone_number || '',
-            address: profileData[0].address || '',
-            description: profileData[0].description || '',
-            cv: profileData[0].cv || '',
-            certificate: profileData[0].certificate || '',
-            profile: profileData[0].profile || '',
+            full_name: profileData.full_name || '',
+            email: profileData.email || '',
+            birth: profileData.birth || '',
+            phone_number: profileData.phone_number || '',
+            address: profileData.address || '',
+            description: profileData.description || '',
+            cv: profileData.cv || '',
+            certificate: profileData.certificate || '',
+            profile: profileData.profile || '',
           });
-          setIsOnline(profileData[0].status);
-          // Handle selected animals 
-          if (profileData[0].animal_ids) {
+          setIsOnline(profileData.status);
+          if (profileData.animal_ids) {
             const selected = animalRes.data.filter(animal =>
               profileData.animal_ids.includes(animal.id)
             );
@@ -128,6 +123,7 @@ export default function ProfileSeller() {
           }
         }
       } catch (err) {
+        alert("Error mengambil data profile")
         console.error('Gagal ambil data:', err);
       }
     }
