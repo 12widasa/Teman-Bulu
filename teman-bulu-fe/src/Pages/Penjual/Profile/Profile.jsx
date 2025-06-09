@@ -99,7 +99,6 @@ export default function ProfileSeller() {
         ]);
 
         setAnimals(animalRes.data);
-
         if (profileRes.data) {
           const profileData = profileRes.data[0];
           console.log(profileData);

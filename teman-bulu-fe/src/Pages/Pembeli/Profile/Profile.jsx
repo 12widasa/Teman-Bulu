@@ -26,9 +26,7 @@ export default function ProfileBuyer() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await BUYER_SERVICE.updateProfileBuyer();
-
-        setAnimals(animalRes.data);
+        const response = await BUYER_SERVICE.getProfileBuyer();
         if (response.data) {
           const profileData = response.data[0];
           setUpdateProfileBuyer({
@@ -43,7 +41,6 @@ export default function ProfileBuyer() {
         console.error('Gagal ambil data:', err);
       }
     }
-
     fetchData();
   }, []);
 
