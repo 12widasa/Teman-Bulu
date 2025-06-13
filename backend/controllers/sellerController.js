@@ -75,6 +75,10 @@ const updateProfileSeller = async (req, res) => {
       `DELETE FROM user_animals WHERE user_id = ${req.user.id};`
     );
 
+    const deleteServices = await pool.query(
+      `DELETE FROM service WHERE seller_id = ${req.user.id};`
+    );
+
     const userAnimalsValues = animal_ids
       .map((animal_id) => `(${req.user.id}, ${animal_id})`)
       .join(",");
