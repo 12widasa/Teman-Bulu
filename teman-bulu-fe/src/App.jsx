@@ -17,6 +17,7 @@ import DaftarTransaksi from './Pages/Pembeli/DaftarTransaksi/DaftarTransaksi';
 import DaftarPesanan from './Pages/Penjual/DaftarPesanan/DaftarPesanan';
 import ProfileSeller from './Pages/Penjual/Profile/Profile.jsx';
 import ProfileBuyer from './Pages/Pembeli/Profile/Profile.jsx';
+import PublicRoute from './Utils/PublicRoute.jsx';
 
 function App() {
   const router = createBrowserRouter([
@@ -38,7 +39,11 @@ function App() {
     },
     {
       path: "/login",
-      element: <Login />,
+      element: (
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      ),
     },
     {
       path: "/register-seller",

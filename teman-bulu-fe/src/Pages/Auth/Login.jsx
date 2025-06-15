@@ -5,6 +5,7 @@ import Footer from './../../Component/Auth/Footer';
 import DOG5 from './../../assets/dog5.jpg';
 import { AUTH_SERVICE } from '../../Services/Auth';
 import { useNavigate } from 'react-router-dom';
+import { getUserRole } from '../../Utils/auth.js'
 
 export default function Login() {
   const [loginAuth, setLoginAuth] = useState({
@@ -24,18 +25,6 @@ export default function Login() {
     }));
   }
 
-  const getUserRole = () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) return null;
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role_id;
-    } catch (error) {
-      console.error("Error getting user role:", error);
-      return null;
-    }
-  };
-
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -45,12 +34,8 @@ export default function Login() {
         password: loginAuth.password
       });
       localStorage.setItem('token', response.data.token);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const role = getUserRole();
-
-      // const token = localStorage.getItem("token");
-      // console.log(token);
-      // console.log('User role:', role);
 
       setShowSuccessModal(true);
       setShowErrorModal(false);

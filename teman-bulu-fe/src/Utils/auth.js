@@ -1,12 +1,12 @@
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export const getUserRole = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
 
   try {
-    const decoded = jwt_decode(token);
-    return decoded.role;
+    const decoded = jwtDecode(token);
+    return decoded.role_id;
   } catch (err) {
     console.error("Invalid token", err);
     return null;

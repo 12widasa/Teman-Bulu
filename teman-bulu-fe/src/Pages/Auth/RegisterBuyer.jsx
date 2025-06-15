@@ -30,7 +30,6 @@ export default function RegisterBuyer() {
       await AUTH_SERVICE.registerBuyer({ full_name: registerBuyerAuth.full_name, email: registerBuyerAuth.email, password: registerBuyerAuth.password })
       setIsSubmitting(false);
       setShowModal(true);
-      alert("Berhasil Register silahkan Login");
     } catch (error) {
       setIsSubmitting(false);
       setShowModal(true);
@@ -44,7 +43,7 @@ export default function RegisterBuyer() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow container mx-auto py-12 mb-6 md:px-4 lg:px-4 px-4">
+      <main className="flex-grow container mx-auto py-12 mb-6">
         <div className="flex">
           <div className="w-full md:w-1/2">
             <div className="pr-8">
